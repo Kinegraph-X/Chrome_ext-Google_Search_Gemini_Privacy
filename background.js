@@ -172,10 +172,6 @@ function armStripOnNextSearch(tabId) {
     })
     .catch(() => {});
 
-  // const googleSearchFilter = {
-    // url: GOOGLE_SEARCH_DOMAINS.map((d) => ({ hostSuffix: d, pathContains: "/search" }))
-  // };
-
   armedNavListener = (details) => {
     if (details.tabId !== armedTabId) return;
     if (details.frameId !== 0) return; // main frame only
@@ -189,5 +185,5 @@ function armStripOnNextSearch(tabId) {
     disarmStripOnNextSearch();
   };
 
-  chrome.webNavigation.onBeforeNavigate.addListener(armedNavListener)//, googleSearchFilter);
+  chrome.webNavigation.onBeforeNavigate.addListener(armedNavListener);
 }
