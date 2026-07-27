@@ -1,0 +1,10 @@
+{
+   "appDescription": {
+      "description": "The description of the extension",
+      "message": "One-click toggle to block AI Overviews from Google search results."
+   },
+   "appName": {
+      "description": "The name of the extension",
+      "message": "Block AI Overview (really @network-level)"
+   }
+}
