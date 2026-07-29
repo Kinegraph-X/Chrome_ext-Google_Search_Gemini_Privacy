@@ -65,12 +65,14 @@ This extension isn't published on the Chrome Web Store.
    
 ### Firefox: signed package
 
-This gurantees the extension has been audited by Mozilla before you install it.
+This gurantees the manifest has been audited by Mozilla before you install it.
 
 1. Go to the Releases page on this repo
 2. download the .xpi file on your drive
 3. type "about:addons" in the url field
 4. click on the gear icon, select "install addon from file" and select the .xpi you downloaded
+
+> Nota : This .xpi passed Mozilla's automated validation for unlisted add-ons and Mozilla's signature confirms the file hasn't been altered since signing. It isn't guaranteed a human code review before signing. If you'd rather verify the code yourself, the .xpi is a zip archive containing the exact same source as this repository at the tagged release; you can unzip it and diff the files against the repo.
 
 ## Limitations
 
