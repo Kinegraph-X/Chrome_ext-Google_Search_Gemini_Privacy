@@ -7,7 +7,7 @@ for AI Overview generation — before the request ever leaves your browser.
 
 Most similar extensions **hide** the AI Overview panel after it has already
 loaded — your query has already been sent to Gemini, an answer has already
-been generated, and the extension just removes it from view with CSS. That's
+been generated, and the extension just removes it from view. That's
 what several popular alternatives openly describe themselves as doing:
 
 - "Disable AI Overview": *"a lightweight browser extension that
@@ -26,17 +26,14 @@ what several popular alternatives openly describe themselves as doing:
   though blocking it is clearly the intent.
 
 "When they appear" is the key phrase — the request to Gemini already happened.
-If your concern is the query being sent at all (not just what shows up on
-screen), hiding the result after the fact doesn't address that.
+If your concern is the query not being sent at all, for Google not logging your requests more than it should do, this extension is the right tool.
 
-This extension instead adds `udm=14` to the search request itself, at the
-network level, **before** the request is sent — Google serves the plain "Web"
-results tab directly, and no AI Overview is ever generated for that query in
-the first place.
+Technicalities :
 
-Worth noting: `udm=14` isn't a secret or a hack specific to this extension —
-it's the same parameter Google's own "Web" tab (under the search page's "More"
-menu) uses. Several outlets have written about it as a manual workaround
+It adds `udm=14` to the search request itself, at the
+network level. Google serves the plain "Web" results tab directly, and no AI Overview is ever generated.
+
+Worth noting: `udm=14` isn't a secret or a hack specific to this extension, it's the same parameter Google's own "Web" tab (under the search page's "More" menu) uses. Several outlets have written about it as a manual workaround
 ([TechRadar](https://www.techradar.com/pro/this-free-chrome-extension-makes-google-way-better-and-faster-by-getting-rid-of-ai-overviews-and-much-more),
 [Tom's Guide](https://www.tomsguide.com/ai/how-to-block-google-ai-overviews-from-appearing-in-your-search-results)).
 This extension just applies it automatically and consistently, instead of
@@ -73,4 +70,4 @@ This extension isn't published on the Chrome Web Store.
 
 ## License
 
-[choose one — MIT is a common default for a small utility like this]
+MIT
