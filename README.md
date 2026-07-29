@@ -50,7 +50,9 @@ requiring a manual click on every search.
   touch tabs you already have open — a tab that already loaded a result
   stays as it is.
 
-## Install (unpacked, local use)
+## Install
+
+### Chrome-only: unpacked
 
 This extension isn't published on the Chrome Web Store.
 
@@ -60,6 +62,13 @@ This extension isn't published on the Chrome Web Store.
 4. Click **Load unpacked** and select the folder.
 5. The extension icon appears in your toolbar — click it to toggle
    protection on or off.
+   
+### Firefox: signed package
+
+1. Go to the Releases page on this repo
+2. download the .xpi file on your drive
+3. type "about:addons" in the url field
+4. click on the gear icon, select "install addon from file" and select the .xpi you downloaded
 
 ## Limitations
 
