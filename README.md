@@ -79,7 +79,6 @@ This gurantees the manifest has been audited by Mozilla before you install it.
 - Only covers Google Search's own results page. It doesn't affect other
   Google surfaces (e.g. the separate "AI Mode" tab, which you can still
   select manually — this extension only stops it from being the *default*).
-- Chrome-only for now.
 
 ## License
 
