@@ -1,10 +1,10 @@
 {
    "appDescription": {
       "description": "The description of the extension",
-      "message": "One-click toggle to block AI Overviews from Google search results."
+      "message": "One-click toggle to prevent your search from being sent to Google Gemini."
    },
    "appName": {
       "description": "The name of the extension",
-      "message": "Block AI Overview (really @network-level)"
+      "message": "Google Search Gemini Privacy"
    }
 }
