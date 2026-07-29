@@ -65,6 +65,8 @@ This extension isn't published on the Chrome Web Store.
    
 ### Firefox: signed package
 
+This gurantees the extension has been audited by Mozilla before you install it.
+
 1. Go to the Releases page on this repo
 2. download the .xpi file on your drive
 3. type "about:addons" in the url field
