@@ -1,22 +1,18 @@
 const toggle = document.getElementById("toggle");
 const toggleArea = document.getElementById("toggle-area");
 const status = document.getElementById("status");
-const x1 = document.getElementById("x1");
-const x2 = document.getElementById("x2");
-const antenna = document.getElementById("antenna");
+const statusText = document.getElementById("status-text");
+const logoImg = document.getElementById("logo-img");
 
 function updateUI(enabled) {
   toggle.checked = enabled;
   toggleArea.classList.toggle("active", enabled);
   status.classList.toggle("active", enabled);
-  status.innerHTML = enabled
-    ? '<span class="dot"></span> AI overviews blocked'
-    : '<span class="dot"></span> Inactive';
-  // Hide the red X over the robot when inactive, and dim the antenna light.
-  const display = enabled ? "" : "none";
-  x1.style.display = display;
-  x2.style.display = display;
-  antenna.setAttribute("fill", enabled ? "#c9534a" : "#7a6f5a");
+  statusText.textContent = enabled ? "AI overviews blocked" : "Inactive";
+
+  // Same on/off icon set as the toolbar icon (background.js), same
+  // "-off" suffix convention — swap the popup logo to match.
+  logoImg.src = enabled ? "icons/icon48.png" : "icons/icon48-off.png";
 }
 
 chrome.storage.sync.get({ enabled: true }, (data) => {

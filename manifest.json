@@ -11,11 +11,6 @@
    "background": {
       "service_worker": "background.js"
    },
-   "content_scripts": [ {
-      "js": [ "content.js" ],
-      "matches": [ "*://www.google.com/search*", "*://www.google.co.uk/search*", "*://www.google.ca/search*", "*://www.google.com.au/search*", "*://www.google.de/search*", "*://www.google.fr/search*", "*://www.google.es/search*", "*://www.google.it/search*", "*://www.google.co.jp/search*", "*://www.google.co.in/search*", "*://www.google.com.br/search*", "*://www.google.com.mx/search*", "*://www.google.nl/search*", "*://www.google.pl/search*", "*://www.google.se/search*", "*://www.google.ch/search*", "*://www.google.at/search*", "*://www.google.be/search*", "*://www.google.pt/search*", "*://www.google.co.nz/search*", "*://www.google.co.kr/search*", "*://www.google.ru/search*", "*://www.google.com.ar/search*", "*://www.google.com.co/search*", "*://www.google.com.tw/search*", "*://www.google.com.hk/search*", "*://www.google.com.sg/search*", "*://www.google.co.za/search*", "*://www.google.com.ng/search*", "*://www.google.com.ph/search*" ],
-      "run_at": "document_start"
-   } ],
    "declarative_net_request": {
       "rule_resources": [
          {
@@ -36,6 +31,6 @@
    },
    "manifest_version": 3,
    "name": "__MSG_appName__",
-   "permissions": [ "storage", "declarativeNetRequest" ],
+   "permissions": [ "storage", "declarativeNetRequest", "tabs", "webNavigation" ],
    "version": "2.0.0"
 }

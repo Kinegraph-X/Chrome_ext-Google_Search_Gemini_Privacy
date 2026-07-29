@@ -4,191 +4,171 @@
   <meta charset="UTF-8">
   <style>
     :root {
-      --bg: #1a1710;
-      --surface: #2a2418;
-      --border: #3a2f1f;
-      --text: #e8dcc4;
-      --text-dim: #a89878;
-      --gray: #7a6f5a;
-      --red: #c9534a;
-      --gold: #d4af7a;
-      --green: #7a9a6e;
+      color-scheme: light dark;
+
+      /* Light theme (default) */
+      --bg: #ffffff;
+      --surface: #f6f7f8;
+      --border: #e2e5e8;
+      --text: #1f2328;
+      --text-dim: #6b7078;
+      --accent: #1a73e8;   /* Chrome-blue, reads as "native" rather than branded */
+      --accent-on: #d5473a; /* red, active/blocking state — echoes the icon */
+      --green: #1e8e4f;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #202124;
+        --surface: #292a2d;
+        --border: #3c4043;
+        --text: #e8eaed;
+        --text-dim: #9aa0a6;
+        --accent: #8ab4f8;
+        --accent-on: #f28b82;
+        --green: #81c995;
+      }
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
       width: 280px;
-      font-family: Georgia, "Times New Roman", serif;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        "Helvetica Neue", Arial, sans-serif;
       background: var(--bg);
       color: var(--text);
       -webkit-font-smoothing: antialiased;
-      overflow: hidden;
     }
 
-    .container { padding: 20px 20px 18px; }
+    .container { padding: 18px 18px 16px; }
 
     .header {
       display: flex;
       align-items: center;
-      gap: 12px;
-      margin-bottom: 18px;
+      gap: 10px;
+      margin-bottom: 16px;
     }
 
-    .logo {
-      width: 42px;
-      height: 42px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
+    .logo { width: 36px; height: 36px; flex-shrink: 0; }
 
-    .header-text { display: flex; flex-direction: column; gap: 1px; }
+    .header-text { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
 
     .header h1 {
-      font-size: 16px;
-      font-weight: 500;
+      font-size: 13.5px;
+      font-weight: 600;
       color: var(--text);
-      letter-spacing: 0.2px;
+      letter-spacing: -0.1px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .header .tagline {
       font-size: 11px;
-      font-style: italic;
+      font-weight: 400;
       color: var(--text-dim);
     }
 
     .toggle-area {
       background: var(--surface);
-      border: 1.5px solid var(--border);
+      border: 1px solid var(--border);
       border-radius: 10px;
-      padding: 14px 16px;
+      padding: 12px 14px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      transition: border-color 0.25s;
+      transition: border-color 0.2s;
     }
 
-    .toggle-area.active { border-color: var(--red); }
-
-    .toggle-label { display: flex; flex-direction: column; gap: 2px; }
+    .toggle-area.active { border-color: var(--accent-on); }
 
     .toggle-title {
-      font-size: 13.5px;
+      font-size: 13px;
       font-weight: 500;
       color: var(--text);
-      transition: color 0.25s;
     }
-
-    .toggle-area.active .toggle-title { color: var(--red); }
 
     .switch {
       position: relative;
-      width: 50px;
-      height: 26px;
+      width: 36px;
+      height: 20px;
       flex-shrink: 0;
       cursor: pointer;
     }
 
-    .switch input { opacity: 0; width: 0; height: 0; }
+    .switch input { opacity: 0; width: 0; height: 0; position: absolute; }
 
     .track {
       position: absolute;
       inset: 0;
-      background: #3a3328;
-      border-radius: 13px;
-      border: 1.5px solid var(--border);
-      transition: background 0.2s, border-color 0.2s;
+      background: var(--border);
+      border-radius: 10px;
+      transition: background 0.15s;
     }
 
-    .switch input:checked + .track {
-      background: var(--red);
-      border-color: var(--border);
-    }
+    .switch input:checked + .track { background: var(--accent-on); }
 
     .thumb {
       position: absolute;
-      top: 4px;
-      left: 4px;
-      width: 18px;
-      height: 18px;
-      background: var(--text-dim);
-      border-radius: 9px;
-      border: 1.5px solid var(--border);
-      transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), background 0.2s;
+      top: 2px;
+      left: 2px;
+      width: 16px;
+      height: 16px;
+      background: var(--bg);
+      border-radius: 50%;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.25);
+      transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
       pointer-events: none;
     }
 
-    .switch input:checked ~ .thumb {
-      transform: translateX(22px);
-      background: #f5ead2;
+    .switch input:checked ~ .thumb { transform: translateX(16px); }
+
+    /* Visible keyboard focus, since the checkbox itself is visually hidden */
+    .switch input:focus-visible ~ .track {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
     }
 
     .status {
-      margin-top: 14px;
-      text-align: center;
+      margin-top: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
       font-size: 11.5px;
-      font-style: italic;
       color: var(--text-dim);
-      transition: color 0.25s;
     }
 
-    .status.active { color: var(--green); }
-
     .status .dot {
-      display: inline-block;
       width: 6px;
       height: 6px;
       border-radius: 50%;
-      background: var(--gray);
-      margin-right: 6px;
-      vertical-align: middle;
-      position: relative;
-      top: -1px;
-      transition: background 0.25s;
+      background: var(--text-dim);
+      flex-shrink: 0;
     }
 
+    .status.active { color: var(--green); }
     .status.active .dot { background: var(--green); }
+
+    @media (prefers-reduced-motion: reduce) {
+      .track, .thumb, .toggle-area { transition: none; }
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
-      <div class="logo">
-        <svg width="42" height="42" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
-          <rect x="0" y="0" width="128" height="128" rx="22" fill="#e8dcc4"/>
-          <g transform="translate(64, 68)">
-            <rect x="-44" y="-40" width="88" height="76" rx="11" fill="#1a1710" stroke="#1a1710" stroke-width="2"/>
-            <line x1="0" y1="-40" x2="0" y2="-54" stroke="#1a1710" stroke-width="3" stroke-linecap="round"/>
-            <circle id="antenna" cx="0" cy="-58" r="5" fill="#c9534a" stroke="#1a1710" stroke-width="1.5"/>
-            <circle cx="-44" cy="-20" r="3" fill="#1a1710"/>
-            <circle cx="44" cy="-20" r="3" fill="#1a1710"/>
-            <circle cx="-44" cy="16" r="3" fill="#1a1710"/>
-            <circle cx="44" cy="16" r="3" fill="#1a1710"/>
-            <circle cx="-17" cy="-10" r="8" fill="#e8dcc4"/>
-            <circle cx="17" cy="-10" r="8" fill="#e8dcc4"/>
-            <circle cx="-15" cy="-12" r="3" fill="#1a1710"/>
-            <circle cx="19" cy="-12" r="3" fill="#1a1710"/>
-            <rect x="-17" y="11" width="34" height="13" rx="1.5" fill="#e8dcc4"/>
-            <line x1="-8" y1="11" x2="-8" y2="24" stroke="#1a1710" stroke-width="1.5"/>
-            <line x1="0" y1="11" x2="0" y2="24" stroke="#1a1710" stroke-width="1.5"/>
-            <line x1="8" y1="11" x2="8" y2="24" stroke="#1a1710" stroke-width="1.5"/>
-            <line id="x1" x1="-58" y1="-58" x2="58" y2="48" stroke="#c9534a" stroke-width="9" stroke-linecap="round"/>
-            <line id="x2" x1="58" y1="-58" x2="-58" y2="48" stroke="#c9534a" stroke-width="9" stroke-linecap="round"/>
-          </g>
-        </svg>
+      <div class="logo" aria-hidden="true">
+        <img id="logo-img" src="icons/icon48.png" width="36" height="36" alt="">
       </div>
       <div class="header-text">
-        <h1>Block AI Overview</h1>
-        <div class="tagline">cleaner Google searches</div>
+        <h1>Google Search Gemini Privacy</h1>
+        <div class="tagline">Keep searches off Gemini</div>
       </div>
     </div>
 
     <div class="toggle-area" id="toggle-area">
-      <div class="toggle-label">
-        <div class="toggle-title">Block AI Overviews</div>
-      </div>
+      <div class="toggle-title">Block AI Overview</div>
       <label class="switch">
         <input type="checkbox" id="toggle" checked>
         <div class="track"></div>
@@ -198,7 +178,7 @@
 
     <div class="status" id="status">
       <span class="dot"></span>
-      Inactive
+      <span id="status-text">Inactive</span>
     </div>
   </div>
 
