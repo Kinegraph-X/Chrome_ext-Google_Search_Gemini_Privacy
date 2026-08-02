@@ -1,6 +1,4 @@
 // background.js — Block AI Overview
-// author: E_B_U_n19
-// author: Claude Sonnet 5
 // Enables/disables a static declarativeNetRequest ruleset that redirects
 // fresh /search navigations (with no udm param) to udm=14, which suppresses
 // Google's AI Overview. Tabs that already loaded a Gemini response are left
@@ -68,6 +66,24 @@ let enabled = true;
 let armedTabId = null;
 let armedNavListener = null;
 
+// Session rules (and webNavigation listeners) don't automatically clean up
+// when the service worker restarts — only the in-memory armedTabId/
+// armedNavListener do, since those are plain JS variables. If the worker
+// dies (MV3 workers are killed after ~30s idle) while a strip-on-next-search
+// rule is armed, the rule stays active in the browser indefinitely: nothing
+// in memory remembers it exists to disarm it later, and no navigation on
+// the (now-forgotten) armed tab is being listened for anymore either. Found
+// by testing: a stray rule 9001 was still live across multiple reloads,
+// silently stripping udm=14 from unrelated tabs.
+//
+// Fix: clear any leftover STRIP_SESSION_RULE_ID on every worker startup,
+// before anything else. There's no way to "resume" an old arm correctly
+// (we don't know which tab it was for, or whether that tab still exists),
+// so starting clean is the only sound option.
+chrome.declarativeNetRequest
+  .updateSessionRules({ removeRuleIds: [STRIP_SESSION_RULE_ID] })
+  .catch(() => {});
+
 chrome.storage.sync.get({ enabled: true }, (data) => {
   enabled = data.enabled;
   applyRulesetState();
@@ -87,7 +103,7 @@ chrome.storage.onChanged.addListener((changes, area) => {
       if (tab && tab.id !== undefined) armStripOnNextSearch(tab.id);
     });
   } else {
-    // Re-enabling cancels any pending arm : no reason to strip udm from a
+    // Re-enabling cancels any pending arm — no reason to strip udm from a
     // tab once the extension is back on.
     disarmStripOnNextSearch();
   }
@@ -137,11 +153,6 @@ function disarmStripOnNextSearch() {
     .catch(() => {});
 }
 
-// Watch this tab's navigations to know when to disarm. The SessionRule
-// restricts which navigations event reach the callback (only
-// Google hosts, only /search). This is enforced by Chrome,
-// so a navigation to some unrelated site won't trigger the rewriting,
-// scoped to the same domains via requestDomains
 function armStripOnNextSearch(tabId) {
   // Only one armed tab at a time — if disabling happens again before the
   // previous arm fired, replace it rather than stacking listeners/rules.
@@ -149,7 +160,18 @@ function armStripOnNextSearch(tabId) {
   armedTabId = tabId;
 
   // Arm the session rule immediately: DNR will apply it to whatever /search
-  // request on this tab comes first (reload or new query, doesn't matter).
+  // request on this tab comes first that still carries udm=14 specifically.
+  //
+  // IMPORTANT: the condition below must only match udm=14, not "/search"
+  // in general. An earlier version used urlFilter: "/search" with no udm
+  // check, which matched *any* first search on the armed tab — including a
+  // legitimate click on Images (udm=2) or Videos (udm=39), stripping their
+  // udm too and leaving the request looking like a bare /search, which the
+  // (still-enabled-at-that-moment-in-some-race, or otherwise stale) static
+  // redirect rule would then re-fill with udm=14 — silently bouncing an
+  // Images click over to Web. The regexFilter here scopes the rule to only
+  // the case we actually want to handle: a stale udm=14 left over on this
+  // tab from before disabling.
   chrome.declarativeNetRequest
     .updateSessionRules({
       removeRuleIds: [STRIP_SESSION_RULE_ID],
@@ -162,7 +184,7 @@ function armStripOnNextSearch(tabId) {
             redirect: { transform: { queryTransform: { removeParams: ["udm"] } } }
           },
           condition: {
-            urlFilter: "/search",
+            regexFilter: "[?&]udm=14(&|$)",
             requestDomains: GOOGLE_SEARCH_DOMAINS,
             tabIds: [tabId],
             resourceTypes: ["main_frame"]
@@ -171,6 +193,26 @@ function armStripOnNextSearch(tabId) {
       ]
     })
     .catch(() => {});
+
+  // Watch this tab's navigations to know when to disarm. The addListener
+  // filter below restricts which navigations even reach the callback (only
+  // Google hosts, only /search) — this is enforced natively by Chrome, not
+  // just as a courtesy check, so a navigation to some unrelated site won't
+  // trigger this callback at all, and can never be affected by the session
+  // rule (which is separately scoped to the same domains via requestDomains
+  // above — belt and suspenders, since the rule and the listener filter are
+  // two independent mechanisms and either one alone could have a gap).
+  //
+  // Two ways to reach the callback, both listed explicitly for clarity even
+  // though both currently disarm: (a) this navigation *is* the Google
+  // /search the rule was armed for — job done, disarm; (b) in principle the
+  // filter should mean only (a) can happen, but we keep an explicit check
+  // here rather than assume the filter is airtight, since a navigation that
+  // slips through unmatched should still disarm rather than leave a stale
+  // per-tab rule and listener hanging around indefinitely.
+  const googleSearchFilter = {
+    url: GOOGLE_SEARCH_DOMAINS.map((d) => ({ hostSuffix: d, pathContains: "/search" }))
+  };
 
   armedNavListener = (details) => {
     if (details.tabId !== armedTabId) return;
@@ -185,5 +227,5 @@ function armStripOnNextSearch(tabId) {
     disarmStripOnNextSearch();
   };
 
-  chrome.webNavigation.onBeforeNavigate.addListener(armedNavListener);
+  chrome.webNavigation.onBeforeNavigate.addListener(armedNavListener, googleSearchFilter);
 }
