@@ -1,7 +1,10 @@
 # Google Search Gemini Privacy
 
 A Chrome extension that stops Google from sending your search queries to Gemini
-for AI Overview generation — before the request ever leaves your browser.
+for AI Overview generation — before the request ever leaves your browser. It
+also restores some of the native Google features that are missing from the
+plain "Web" tab (knowledge panels, movie casts) by calling open,
+privacy-respecting APIs instead (OpenStreetMap, Wikipedia, TMDB).
 
 ## Why this one?
 
@@ -50,6 +53,27 @@ requiring a manual click on every search.
   touch tabs you already have open — a tab that already loaded a result
   stays as it is.
 
+## Knowledge panels
+
+Blocking the AI Overview also removes the small "About" cards Google used to
+show for places, and the cast/filmography info for movies and actors. This
+extension rebuilds those in a side panel, sourced from open APIs instead of
+an AI model:
+
+- **Places** — summary, image, and an embedded map, from OpenStreetMap
+  (Nominatim) and Wikipedia.
+- **Movies & people** — cast, director, and filmography, from TMDB (The
+  Movie Database).
+
+Small/obscure places (hamlets, homonyms) are filtered out by default, since
+those are usually better served by an actual maps search.
+
+Domains contacted for this feature: `nominatim.openstreetmap.org`,
+`*.wikipedia.org`, `www.wikidata.org`, `api.themoviedb.org`,
+`image.tmdb.org`. None of these calls go through Gemini or any AI model.
+A TMDB API token (free) is required for the movie/people panel — see the
+extension's settings.
+
 ## Install
 
 ### Chrome-only: unpacked
@@ -62,6 +86,12 @@ This extension isn't published on the Chrome Web Store.
 4. Click **Load unpacked** and select the folder.
 5. The extension icon appears in your toolbar — click it to toggle
    protection on or off.
+
+> Note: Chrome may show a warning about `background.scripts` in the
+> manifest. This is expected — the manifest is kept cross-browser, and
+> that key is there for Firefox (which doesn't support MV3 service
+> workers). Chrome ignores it and uses `background.service_worker`
+> instead.
    
 ### Firefox: signed package
 
@@ -79,6 +109,9 @@ This gurantees the manifest has been audited by Mozilla before you install it.
 - Only covers Google Search's own results page. It doesn't affect other
   Google surfaces (e.g. the separate "AI Mode" tab, which you can still
   select manually — this extension only stops it from being the *default*).
+- Knowledge panels are best-effort: they rely on the query matching an
+  entry in OpenStreetMap/Wikipedia/TMDB, so not every search will show one
+  — Google's own panels have access to more (and licensed) data.
 
 ## License
 
