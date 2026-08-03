@@ -24,6 +24,12 @@ const moviePanelEl = document.getElementById("aopMoviePanel");
 const movieHeadingEl = document.getElementById("aopMovieHeading");
 const movieCastGridEl = document.getElementById("aopMovieCastGrid");
 
+// Libellés statiques, localisés une fois au chargement.
+document.getElementById("aopPageTitle").textContent = chrome.i18n.getMessage("sidePanelTitle");
+document.getElementById("aopOfficialSiteLabel").textContent = chrome.i18n.getMessage("sidePanelOfficialSite");
+document.getElementById("aopAbstractUrlLabel").textContent = chrome.i18n.getMessage("sidePanelWikipediaLink");
+document.getElementById("aopMovieSourceLine").textContent = chrome.i18n.getMessage("sidePanelSourceTmdb");
+
 function buildOsmEmbedUrl(lat, lon, zoomDelta = 0.02) {
   const bbox = [lon - zoomDelta, lat - zoomDelta, lon + zoomDelta, lat + zoomDelta].join(",");
   const marker = `${lat},${lon}`;
@@ -33,7 +39,7 @@ function buildOsmEmbedUrl(lat, lon, zoomDelta = 0.02) {
 function render(about, query) {
   if (!about) {
     emptyEl.style.display = "block";
-    emptyEl.textContent = `Rien trouvé pour « ${query} ».`;
+    emptyEl.textContent = chrome.i18n.getMessage("sidePanelEmpty", [query]);
     panelEl.style.display = "none";
     return;
   }
@@ -74,8 +80,8 @@ function render(about, query) {
   }
 
   sourceLine.textContent = about.abstractSource
-    ? `Source : ${about.abstractSource} / OpenStreetMap`
-    : "Source : OpenStreetMap";
+    ? chrome.i18n.getMessage("sidePanelSourceWithName", [about.abstractSource])
+    : chrome.i18n.getMessage("sidePanelSourceOsmOnly");
 }
 
 function buildGoogleSearchUrl(query) {
@@ -130,7 +136,7 @@ function renderCastGrid(container, cardConfigs) {
   const moreBtn = document.createElement("button");
   moreBtn.type = "button";
   moreBtn.className = "aop-more-btn";
-  moreBtn.textContent = `Voir plus (${restConfigs.length})`;
+  moreBtn.textContent = chrome.i18n.getMessage("sidePanelShowMore", [String(restConfigs.length)]);
   moreBtn.addEventListener("click", () => {
     restConfigs.forEach((cfg) => container.insertBefore(personCard(...cfg), moreBtn));
     moreBtn.remove();
@@ -147,15 +153,16 @@ function renderMovie(movie) {
 
   if (movie.type === "movie") {
     const { movie: m, cast, directors } = movie.data;
-    movieHeadingEl.textContent = `Casting — ${m.title}`;
+    movieHeadingEl.textContent = chrome.i18n.getMessage("sidePanelCastHeading", [m.title]);
+    const directorRole = chrome.i18n.getMessage("sidePanelDirectorRole");
     const configs = [
-      ...directors.map((d) => [d.name, "Réalisateur", d.profile, d.name]),
+      ...directors.map((d) => [d.name, directorRole, d.profile, d.name]),
       ...cast.map((c) => [c.name, c.character, c.profile, c.name]),
     ];
     renderCastGrid(movieCastGridEl, configs);
   } else if (movie.type === "person") {
     const { person, filmography } = movie.data;
-    movieHeadingEl.textContent = `Filmographie — ${person.name}`;
+    movieHeadingEl.textContent = chrome.i18n.getMessage("sidePanelFilmographyHeading", [person.name]);
     const configs = filmography.map((f) => {
       const label = `${f.title}${f.releaseDate ? " (" + f.releaseDate.slice(0, 4) + ")" : ""}`;
       return [label, f.roles.join(", "), f.poster, f.title];

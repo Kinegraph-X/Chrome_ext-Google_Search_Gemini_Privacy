@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8" />
-<title>About panel</title>
+<title id="aopPageTitle">About panel</title>
 <style>
   :root {
     --aop-text: #202124;
@@ -181,7 +181,7 @@
 </style>
 </head>
 <body>
-  <div class="aop-empty" id="aopEmpty">Aucune information à afficher pour l'instant.</div>
+  <div class="aop-empty" id="aopEmpty"></div>
 
   <div id="aopPanel" style="display:none">
     <h1 class="aop-heading" id="aopHeading"></h1>
@@ -189,10 +189,10 @@
     <div class="aop-abstract" id="aopAbstract"></div>
     <iframe class="aop-map" id="aopMap" loading="lazy"></iframe>
     <div class="aop-link-row" id="aopOfficialSiteRow" style="display:none">
-      <a class="aop-btn-link" id="aopOfficialSiteLink" target="_blank" rel="noopener">🔗 Site officiel</a>
+      <a class="aop-btn-link" id="aopOfficialSiteLink" target="_blank" rel="noopener">🔗 <span id="aopOfficialSiteLabel"></span></a>
     </div>
     <div class="aop-link-row" id="aopAbstractUrlRow" style="display:none">
-      <a class="aop-btn-link" id="aopAbstractUrlLink" target="_blank" rel="noopener">📖 Voir sur Wikipedia</a>
+      <a class="aop-btn-link" id="aopAbstractUrlLink" target="_blank" rel="noopener">📖 <span id="aopAbstractUrlLabel"></span></a>
     </div>
     <div class="aop-source" id="aopSourceLine"></div>
   </div>
@@ -200,7 +200,7 @@
   <div class="aop-movie-panel" id="aopMoviePanel" style="display:none">
     <h2 class="aop-movie-heading" id="aopMovieHeading"></h2>
     <div class="aop-cast-grid" id="aopMovieCastGrid"></div>
-    <div class="aop-source" id="aopMovieSourceLine">Source : TMDB</div>
+    <div class="aop-source" id="aopMovieSourceLine"></div>
   </div>
 
   <script src="side-panel.js"></script>

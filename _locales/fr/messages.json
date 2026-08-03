@@ -1,7 +1,7 @@
 {
    "appDescription": {
       "description": "The description of the extension",
-      "message": "One-click toggle to prevent your search from being sent to Google Gemini."
+      "message": "Empêche en un clic l'envoi de vos recherches à Google Gemini."
    },
    "appName": {
       "description": "The name of the extension",
@@ -13,55 +13,55 @@
    },
    "sidePanelEmpty": {
       "description": "Shown when no knowledge panel data was found for the search",
-      "message": "No results found for \u201c$QUERY$\u201d.",
+      "message": "Rien trouvé pour « $QUERY$ ».",
       "placeholders": {
          "query": { "content": "$1", "example": "Marcq-en-Barœul" }
       }
    },
    "sidePanelOfficialSite": {
       "description": "Button label linking to the official website of a place",
-      "message": "Official site"
+      "message": "Site officiel"
    },
    "sidePanelWikipediaLink": {
       "description": "Button label linking to the Wikipedia article",
-      "message": "See on Wikipedia"
+      "message": "Voir sur Wikipedia"
    },
    "sidePanelSourceWithName": {
       "description": "Source line when an abstract source (e.g. Wikipedia) is known",
-      "message": "Source: $SOURCE$ / OpenStreetMap",
+      "message": "Source : $SOURCE$ / OpenStreetMap",
       "placeholders": {
          "source": { "content": "$1", "example": "Wikipedia" }
       }
    },
    "sidePanelSourceOsmOnly": {
       "description": "Source line when only OpenStreetMap data is available",
-      "message": "Source: OpenStreetMap"
+      "message": "Source : OpenStreetMap"
    },
    "sidePanelSourceTmdb": {
       "description": "Source line for the movie/cast panel",
-      "message": "Source: TMDB"
+      "message": "Source : TMDB"
    },
    "sidePanelDirectorRole": {
       "description": "Role label shown under a director's photo in a movie cast",
-      "message": "Director"
+      "message": "Réalisateur"
    },
    "sidePanelCastHeading": {
       "description": "Heading for a movie's cast panel",
-      "message": "Cast — $TITLE$",
+      "message": "Casting — $TITLE$",
       "placeholders": {
          "title": { "content": "$1", "example": "Inception" }
       }
    },
    "sidePanelFilmographyHeading": {
       "description": "Heading for a person's filmography panel",
-      "message": "Filmography — $NAME$",
+      "message": "Filmographie — $NAME$",
       "placeholders": {
          "name": { "content": "$1", "example": "Christopher Nolan" }
       }
    },
    "sidePanelShowMore": {
       "description": "Button to reveal the remaining cast/filmography entries",
-      "message": "Show more ($COUNT$)",
+      "message": "Voir plus ($COUNT$)",
       "placeholders": {
          "count": { "content": "$1", "example": "6" }
       }
