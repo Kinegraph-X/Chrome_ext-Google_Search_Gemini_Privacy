@@ -7,16 +7,6 @@
  */
 
 (function () {
-  // Google est une SPA partielle : certaines navigations (suggestions,
-  // filtres) changent l'URL sans recharger la page. On observe l'historique.
-  let lastUrl = window.location.href;
-  const observer = new MutationObserver(() => {
-    if (window.location.href !== lastUrl) {
-      lastUrl = window.location.href;
-      sendQuery(getSearchQuery());
-    }
-  });
-  observer.observe(document.body, { childList: true, subtree: true });
   
   function getSearchQuery() {
     const params = new URLSearchParams(window.location.search);
@@ -35,6 +25,20 @@
   window.addEventListener("pageshow", (e) => {
 	  if (e.persisted === true) sendQuery(getSearchQuery());
   })
+  
+  let lastUrl = window.location.href;
+  window.onload = (e) => {
+	  // Google est une SPA partielle : certaines navigations (suggestions,
+	  // filtres) changent l'URL sans recharger la page. On observe l'historique.
+	  
+	  const observer = new MutationObserver(() => {
+		if (window.location.href !== lastUrl) {
+		  lastUrl = window.location.href;
+		  sendQuery(getSearchQuery());
+		}
+	  });
+	  observer.observe(document.body, { childList: true, subtree: true });
+  }
 
   // Envoi initial au chargement de la page de résultats
   sendQuery(getSearchQuery());
