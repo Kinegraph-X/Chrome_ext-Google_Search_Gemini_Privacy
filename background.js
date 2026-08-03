@@ -61,12 +61,17 @@
 importScripts("about-builder.js", "movie-builder.js"); // expose self.buildAboutPanel si non-module,
 // si tu préfères les ES modules, remplace par: import { buildAboutPanel } from "./about-builder.js";
 
-console.log("service-worker")
-
 chrome.storage.local.set({ tmdbBearerToken: "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI0M2ViNjUzYTk0MTlkYmU4NWI5M2ViMmMzYmFlNmM5NiIsIm5iZiI6MTc4NTcxOTA4OS45NjYsInN1YiI6IjZhNmZlOTMxNTU1NDJkMDg4YTNjNmJlOSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.f-A_ZdXVigPYJ4p3z2Qp62yQrkXqv8ScwxEP_bigKzY" });
 
 const STORAGE_KEY = "aboutPanelEnabled";
 const TMDB_TOKEN_KEY = "tmdbBearerToken";
+
+// Langue du navigateur (tag BCP-47, ex: "fr-FR", "en-US"), utilisée pour
+// Wikipedia (code court, ex: "fr") et TMDB (tag complet, ex: "fr-FR").
+// Fallback anglais si jamais indisponible.
+const uiLanguage = chrome.i18n.getUILanguage() || "en-US";
+const wikipediaLang = uiLanguage.split("-")[0] || "en";
+const tmdbLang = uiLanguage;
 
 const RULESET_ID = "block_ai_overview_ruleset";
 const STRIP_SESSION_RULE_ID = 9001;
@@ -103,7 +108,6 @@ chrome.declarativeNetRequest
   .catch(() => {});
 
 chrome.storage.sync.get({ enabled: true }, (data) => {
-	console.log(enabled)
   enabled = data.enabled;
   applyRulesetState();
   updateIcon();
@@ -117,7 +121,6 @@ async function loadTmdbToken() {
 loadTmdbToken();
 
 chrome.storage.onChanged.addListener((changes, area) => {
-	console.log(changes,area)
   if (area === "local" && changes[TMDB_TOKEN_KEY]) {
     setTmdbToken(changes[TMDB_TOKEN_KEY].newValue || null);
 	return;
@@ -180,10 +183,21 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 		if (!enabled) return;
 
 		const [aboutResult, movieResult] = await Promise.allSettled([
-		  buildAboutPanel(message.query, { lang: "fr" }),
-		  resolveMovieEntity(message.query, { lang: "fr-FR" }),
+		  buildAboutPanel(
+			message.query,
+			{
+				lang: wikipediaLang
+			}
+		  ),
+		  resolveMovieEntity(
+			message.query,
+			{
+				lang: wikipediaLang,
+				minPopularity : - 1
+			}
+		  ),
 		]);
-		console.log(aboutResult, movieResult)
+		
 		const about = aboutResult.status === "fulfilled" ? aboutResult.value : null;
 		if (aboutResult.status === "rejected") {
 		  console.error("[service-worker] buildAboutPanel failed", aboutResult.reason);

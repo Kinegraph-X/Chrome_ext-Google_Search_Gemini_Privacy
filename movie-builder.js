@@ -81,7 +81,7 @@
    * @returns {Promise<object|null>} { movie: {...}, cast: [...], crew: [...] }
    */
   async function buildMovieCastPanel(titleOrMatch, opts = {}) {
-    const lang = opts.lang || "fr-FR";
+    const lang = opts.lang || "en-US";
     let match;
 
     if (typeof titleOrMatch === "object" && titleOrMatch !== null) {
@@ -90,6 +90,7 @@
       const title = titleOrMatch;
       const cacheKey = `cast:${lang}:${title.trim().toLowerCase()}`;
       const cached = cacheGet(cacheKey);
+	  console.log("TMDB cached cast", cached)
       if (cached) return cached;
 
       const search = await tmdbGet("/search/movie", {
@@ -105,6 +106,7 @@
 
     const cacheKey = `cast:${lang}:id:${match.id}`;
     const cached = cacheGet(cacheKey);
+	console.log("TMDB cached cast", cached)
     if (cached) return cached;
 
     const credits = await tmdbGet(`/movie/${match.id}/credits`, {
@@ -145,7 +147,7 @@
    * @returns {Promise<object|null>} { person: {...}, filmography: [...] }
    */
   async function buildFilmographyPanel(nameOrMatch, opts = {}) {
-    const lang = opts.lang || "fr-FR";
+    const lang = opts.lang || "en-US";
     let match;
 
     if (typeof nameOrMatch === "object" && nameOrMatch !== null) {
@@ -154,6 +156,7 @@
       const name = nameOrMatch;
       const cacheKey = `filmo:${lang}:${name.trim().toLowerCase()}`;
       const cached = cacheGet(cacheKey);
+	  console.log("TMDB cached filmo", cached)
       if (cached) return cached;
 
       const search = await tmdbGet("/search/person", {
@@ -169,6 +172,7 @@
 
     const cacheKey = `filmo:${lang}:id:${match.id}`;
     const cached = cacheGet(cacheKey);
+	console.log("TMDB cached filmo", cached)
     if (cached) return cached;
 
     const credits = await tmdbGet(`/person/${match.id}/combined_credits`, {
@@ -226,7 +230,7 @@
    * @returns {Promise<{type: "movie"|"person", data: object}|null>}
    */
   async function resolveMovieEntity(query, opts = {}) {
-    const lang = opts.lang || "fr-FR";
+    const lang = opts.lang || "en-US";
     const minPopularity = opts.minPopularity ?? 5;
     const cleaned = cleanQueryForTmdb(query);
 
@@ -243,7 +247,7 @@
       personSearch.status === "fulfilled"
         ? personSearch.value.results?.[0]
         : null;
-
+	
     const movieScore = bestMovie?.popularity ?? -1;
     const personScore = bestPerson?.popularity ?? -1;
 

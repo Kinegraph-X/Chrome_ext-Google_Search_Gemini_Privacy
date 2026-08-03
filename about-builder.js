@@ -101,7 +101,7 @@
   // désambiguation éventuelle, ex: "L'Odyssée (film, 2016)"). Pour une query
   // libre ambiguë, on passe d'abord par l'endpoint de recherche pour trouver
   // le bon titre, plutôt que de deviner.
-  async function resolveWikipediaTitle(query, lang = "fr") {
+  async function resolveWikipediaTitle(query, lang = "en") {
     const url = new URL(`https://${lang}.wikipedia.org/w/rest.php/v1/search/page`);
     url.searchParams.set("q", query);
     url.searchParams.set("limit", "1");
@@ -112,7 +112,7 @@
     return data?.pages?.[0]?.key || null; // "key" = titre exact utilisable tel quel
   }
 
-  async function fetchWikipediaSummary(title, lang = "fr") {
+  async function fetchWikipediaSummary(title, lang = "en") {
     const url = `https://${lang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(
       title,
     )}`;
@@ -135,7 +135,7 @@
    * @returns {Promise<object|null>} objet "about" ou null
    */
   async function buildAboutPanel(query, opts = {}) {
-    const lang = opts.lang || "fr";
+    const lang = opts.lang || "en";
     const cacheKey = `${lang}:${query.trim().toLowerCase()}`;
 
     const cached = cacheGet(cacheKey);
