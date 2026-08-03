@@ -96,9 +96,12 @@ function personCard(name, subtitle, imgSrc, searchQuery) {
   img.className = "aop-person-img";
   if (imgSrc) {
     img.src = imgSrc;
-    img.style.display = "block";
+    card.appendChild(img);
+  } else {
+    const placeholder = document.createElement("div");
+    placeholder.className = "aop-person-img aop-person-img-placeholder";
+    card.appendChild(placeholder);
   }
-  card.appendChild(img);
 
   const nameEl = document.createElement("div");
   nameEl.className = "aop-person-name";
@@ -113,9 +116,29 @@ function personCard(name, subtitle, imgSrc, searchQuery) {
   return card;
 }
 
-function renderMovie(movie) {
-  movieCastGridEl.innerHTML = "";
+function renderCastGrid(container, cardConfigs) {
+  container.innerHTML = "";
 
+  const PAGE_SIZE = 9;
+  const visibleConfigs = cardConfigs.slice(0, PAGE_SIZE);
+  const restConfigs = cardConfigs.slice(PAGE_SIZE);
+
+  visibleConfigs.forEach((cfg) => container.appendChild(personCard(...cfg)));
+
+  if (restConfigs.length === 0) return;
+
+  const moreBtn = document.createElement("button");
+  moreBtn.type = "button";
+  moreBtn.className = "aop-more-btn";
+  moreBtn.textContent = `Voir plus (${restConfigs.length})`;
+  moreBtn.addEventListener("click", () => {
+    restConfigs.forEach((cfg) => container.insertBefore(personCard(...cfg), moreBtn));
+    moreBtn.remove();
+  });
+  container.appendChild(moreBtn);
+}
+
+function renderMovie(movie) {
   if (!movie) {
     moviePanelEl.style.display = "none";
     return;
@@ -125,21 +148,19 @@ function renderMovie(movie) {
   if (movie.type === "movie") {
     const { movie: m, cast, directors } = movie.data;
     movieHeadingEl.textContent = `Casting — ${m.title}`;
-    directors.forEach((d) =>
-      movieCastGridEl.appendChild(personCard(d.name, "Réalisateur", d.profile, d.name))
-    );
-    cast.forEach((c) =>
-      movieCastGridEl.appendChild(personCard(c.name, c.character, c.profile, c.name))
-    );
+    const configs = [
+      ...directors.map((d) => [d.name, "Réalisateur", d.profile, d.name]),
+      ...cast.map((c) => [c.name, c.character, c.profile, c.name]),
+    ];
+    renderCastGrid(movieCastGridEl, configs);
   } else if (movie.type === "person") {
     const { person, filmography } = movie.data;
     movieHeadingEl.textContent = `Filmographie — ${person.name}`;
-    filmography.slice(0, 12).forEach((f) => {
+    const configs = filmography.map((f) => {
       const label = `${f.title}${f.releaseDate ? " (" + f.releaseDate.slice(0, 4) + ")" : ""}`;
-      movieCastGridEl.appendChild(
-        personCard(label, f.roles.join(", "), f.poster, f.title)
-      );
+      return [label, f.roles.join(", "), f.poster, f.title];
     });
+    renderCastGrid(movieCastGridEl, configs);
   }
 }
 

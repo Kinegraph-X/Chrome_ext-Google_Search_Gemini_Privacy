@@ -131,14 +131,43 @@
     cursor: pointer;
   }
 
+  .aop-more-btn {
+    grid-column: 1 / -1;
+    padding: 8px;
+    background: transparent;
+    border: 1px solid var(--aop-border);
+    border-radius: 8px;
+    color: var(--aop-text);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s ease;
+  }
+
+  .aop-more-btn:hover {
+    background: var(--aop-card-bg);
+  }
+
   .aop-person-img {
+    display: block;
     width: 100%;
     aspect-ratio: 13 / 16;
     border-radius: 6px;
     object-fit: cover;
     background: var(--aop-card-bg);
-    display: none;
     margin: 0 auto 6px;
+  }
+
+  .aop-person-img-placeholder {
+    background-image: linear-gradient(
+      135deg,
+      var(--aop-card-bg) 0%,
+      var(--aop-border) 50%,
+      var(--aop-card-bg) 100%
+    );
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
   }
 
   .aop-person-name {
