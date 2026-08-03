@@ -21,9 +21,23 @@
          }
       ]
    },
+   "side_panel": {
+    "default_path": "side-panel.html"
+   },
+   "content_scripts": [
+    {
+      "matches": ["https://www.google.com/search*"],
+      "js": ["content-script.js"],
+      "run_at": "document_idle"
+   }
+   ],
    "default_locale": "en",
    "description": "__MSG_appDescription__",
-   "host_permissions": [ "*://www.google.com/*", "*://www.google.co.uk/*", "*://www.google.ca/*", "*://www.google.com.au/*", "*://www.google.de/*", "*://www.google.fr/*", "*://www.google.es/*", "*://www.google.it/*", "*://www.google.co.jp/*", "*://www.google.co.in/*", "*://www.google.com.br/*", "*://www.google.com.mx/*", "*://www.google.nl/*", "*://www.google.pl/*", "*://www.google.se/*", "*://www.google.ch/*", "*://www.google.at/*", "*://www.google.be/*", "*://www.google.pt/*", "*://www.google.co.nz/*", "*://www.google.co.kr/*", "*://www.google.ru/*", "*://www.google.com.ar/*", "*://www.google.com.co/*", "*://www.google.com.tw/*", "*://www.google.com.hk/*", "*://www.google.com.sg/*", "*://www.google.co.za/*", "*://www.google.com.ng/*", "*://www.google.com.ph/*" ],
+   "host_permissions": [ "*://www.google.com/*", "*://www.google.co.uk/*", "*://www.google.ca/*", "*://www.google.com.au/*", "*://www.google.de/*", "*://www.google.fr/*", "*://www.google.es/*", "*://www.google.it/*", "*://www.google.co.jp/*", "*://www.google.co.in/*", "*://www.google.com.br/*", "*://www.google.com.mx/*", "*://www.google.nl/*", "*://www.google.pl/*", "*://www.google.se/*", "*://www.google.ch/*", "*://www.google.at/*", "*://www.google.be/*", "*://www.google.pt/*", "*://www.google.co.nz/*", "*://www.google.co.kr/*", "*://www.google.ru/*", "*://www.google.com.ar/*", "*://www.google.com.co/*", "*://www.google.com.tw/*", "*://www.google.com.hk/*", "*://www.google.com.sg/*", "*://www.google.co.za/*", "*://www.google.com.ng/*", "*://www.google.com.ph/*",
+    "*://nominatim.openstreetmap.org/*",
+    "*://www.wikidata.org/*",
+    "*://*.wikipedia.org/*"
+	],
    "icons": {
       "128": "icons/icon128.png",
       "16": "icons/icon16.png",
@@ -32,7 +46,7 @@
    },
    "manifest_version": 3,
    "name": "__MSG_appName__",
-   "permissions": [ "storage", "declarativeNetRequest", "tabs", "webNavigation", "declarativeNetRequestFeedback" ],
+   "permissions": [ "storage", "declarativeNetRequest", "tabs", "webNavigation", "sidePanel", "declarativeNetRequestFeedback" ],
    "browser_specific_settings": {
 	   "gecko": {
 		   "id" : "google_search_gemini_privacy@github.kinegraphx",

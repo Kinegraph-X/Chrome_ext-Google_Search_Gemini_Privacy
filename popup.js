@@ -20,6 +20,8 @@ chrome.storage.sync.get({ enabled: true }, (data) => {
 });
 
 toggle.addEventListener("change", () => {
+  chrome.storage.local.set({ tmdbBearerToken: "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI0M2ViNjUzYTk0MTlkYmU4NWI5M2ViMmMzYmFlNmM5NiIsIm5iZiI6MTc4NTcxOTA4OS45NjYsInN1YiI6IjZhNmZlOTMxNTU1NDJkMDg4YTNjNmJlOSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.f-A_ZdXVigPYJ4p3z2Qp62yQrkXqv8ScwxEP_bigKzY" });
+  
   const enabled = toggle.checked;
   updateUI(enabled);
   chrome.storage.sync.set({ enabled });
