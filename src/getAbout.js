@@ -8,25 +8,27 @@ import * as utils from "./aboutUtils.js"
 // --- 1. Nominatim : tente de résoudre la query comme un lieu ---
 async function fetchNominatim(query) {
     await utils.throttleNominatim();
-    const url = constants.nominatimUrl +
-        new URLSearchParams({
-            q: query,
-            format: constants.nominatimFormat,
-            addressdetails: constants.nominatimAdressDetails,
-            extratags: constants.nominatimExtraTags,
-            namedetails: constants.nominatimNameDetails,
-            limit: constants.nominatimLimit,
-        });
-
+    const params = new URLSearchParams({
+        q: query,
+        format: constants.nominatimFormat,
+        addressdetails: constants.nominatimAdressDetails,
+        extratags: constants.nominatimExtraTags,
+        namedetails: constants.nominatimNameDetails,
+        limit: constants.nominatimLimit,
+    });
+    
+    const url = constants.nominatimUrl + params.toString();
     const res = await fetch(url, {
         headers: { "User-Agent": constants.ABOUT_BUILDER_UA, Accept: "application/json" },
     });
-
+    
     if (!res.ok) return null;
 
     const data = await res.json();
-    if (!Array.isArray(data) || data.length === 0) return null;
-        return data[0];
+    
+    if (!Array.isArray(data) || data.length === 0)
+        return null;
+    return data[0];
 }
 
 // --- 2. Wikidata : récupère l'entité liée si Nominatim en fournit une ---
@@ -94,18 +96,18 @@ export async function buildAboutPanel(query, opts = {}) {
     try {
         place = await fetchNominatim(query);
         if (!utils.isPlaceNotable(place)) {
-        place = null;
+            place = null;
         }
     } catch (e) {
         console.warn("[about-builder] Nominatim error", e);
     }
-
+    
     const wikidataId = place?.extratags?.wikidata || null;
     if (wikidataId) {
         try {
-        wikidataEntity = await fetchWikidataEntity(wikidataId);
+            wikidataEntity = await fetchWikidataEntity(wikidataId);
         } catch (e) {
-        console.warn("[about-builder] Wikidata error", e);
+            console.warn("[about-builder] Wikidata error", e);
         }
     }
 

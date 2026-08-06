@@ -36,5 +36,5 @@ export function isPlaceNotable(place) {
     // Si `importance` est absent (rare), on ne filtre pas par précaution.
     if (typeof place.importance !== "number") return true;
     
-    place.importance >= constants.MIN_PLACE_IMPORTANCE;
+    return place.importance >= constants.MIN_PLACE_IMPORTANCE;
 }

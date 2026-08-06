@@ -205,11 +205,15 @@ export async function resolveMovieEntity(query, opts = {}) {
     
     const bestMovie =
         movieSearch.status === "fulfilled"
-            ? movieSearch.value.results?.[0]
+            ? movieSearch.value.total_results > 0
+                ? movieSearch.value.results?.[0]
+                : null
             : null;
     const bestPerson =
         personSearch.status === "fulfilled"
-            ? personSearch.value.results?.[0]
+            ? personSearch.value.total_results > 0
+                ? personSearch.value.results?.[0]
+                : null
             : null;
 
     const movieScore = bestMovie?.popularity ?? -1;
