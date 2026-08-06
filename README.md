@@ -61,9 +61,9 @@ requiring a manual click on every search.
 
 ## Knowledge panels
 
-Blocking the AI Overview also removes the small "About" cards Google used to
+Blocking the AI Overview also removes the "About" cards Google used to
 show for places, and the cast/filmography info for movies and actors. This
-extension rebuilds those in a side panel, sourced from open APIs instead of
+extension rebuilds those, sourced from open APIs instead of
 an AI model:
 
 - **Places** — summary, image, and an embedded map, from OpenStreetMap
