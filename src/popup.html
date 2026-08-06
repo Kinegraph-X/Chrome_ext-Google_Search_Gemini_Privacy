@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <style>
+    :root {
+      color-scheme: light dark;
+
+      /* Light theme (default) */
+      --bg: #ffffff;
+      --surface: #f6f7f8;
+      --border: #e2e5e8;
+      --text: #1f2328;
+      --text-dim: #6b7078;
+      --accent: #1a73e8;   /* Chrome-blue, reads as "native" rather than branded */
+      --accent-on: #d5473a; /* red, active/blocking state — echoes the icon */
+      --green: #1e8e4f;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #202124;
+        --surface: #292a2d;
+        --border: #3c4043;
+        --text: #e8eaed;
+        --text-dim: #9aa0a6;
+        --accent: #8ab4f8;
+        --accent-on: #f28b82;
+        --green: #81c995;
+      }
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      width: 280px;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        "Helvetica Neue", Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .container { padding: 18px 18px 16px; }
+
+    .header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .logo { width: 36px; height: 36px; flex-shrink: 0; }
+
+    .header-text { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+
+    .header h1 {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -0.1px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .header .tagline {
+      font-size: 11px;
+      font-weight: 400;
+      color: var(--text-dim);
+    }
+
+    .toggle-area {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: border-color 0.2s;
+    }
+
+    .toggle-area.active { border-color: var(--accent-on); }
+
+    .toggle-title {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .switch {
+      position: relative;
+      width: 36px;
+      height: 20px;
+      flex-shrink: 0;
+      cursor: pointer;
+    }
+
+    .switch input { opacity: 0; width: 0; height: 0; position: absolute; }
+
+    .track {
+      position: absolute;
+      inset: 0;
+      background: var(--border);
+      border-radius: 10px;
+      transition: background 0.15s;
+    }
+
+    .switch input:checked + .track { background: var(--accent-on); }
+
+    .thumb {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 16px;
+      height: 16px;
+      background: var(--bg);
+      border-radius: 50%;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.25);
+      transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+      pointer-events: none;
+    }
+
+    .switch input:checked ~ .thumb { transform: translateX(16px); }
+
+    /* Visible keyboard focus, since the checkbox itself is visually hidden */
+    .switch input:focus-visible ~ .track {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .status {
+      margin-top: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11.5px;
+      color: var(--text-dim);
+    }
+
+    .status .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--text-dim);
+      flex-shrink: 0;
+    }
+
+    .status.active { color: var(--green); }
+    .status.active .dot { background: var(--green); }
+
+    @media (prefers-reduced-motion: reduce) {
+      .track, .thumb, .toggle-area { transition: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo" aria-hidden="true">
+        <img id="logo-img" src="icons/icon48.png" width="36" height="36" alt="">
+      </div>
+      <div class="header-text">
+        <h1>Google Search Gemini Privacy</h1>
+        <div class="tagline">Keep searches off Gemini</div>
+      </div>
+    </div>
+
+    <div class="toggle-area" id="toggle-area">
+      <div class="toggle-title">Block AI Overview</div>
+      <label class="switch">
+        <input type="checkbox" id="toggle" checked>
+        <div class="track"></div>
+        <div class="thumb"></div>
+      </label>
+    </div>
+
+    <div class="status" id="status">
+      <span class="dot"></span>
+      <span id="status-text">Inactive</span>
+    </div>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

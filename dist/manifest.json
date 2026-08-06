@@ -21,9 +21,6 @@
          }
       ]
    },
-   "side_panel": {
-    "default_path": "side-panel.html"
-   },
    "content_scripts": [
     {
       "matches": ["https://www.google.com/search*"],
@@ -46,7 +43,7 @@
    },
    "manifest_version": 3,
    "name": "__MSG_appName__",
-   "permissions": [ "storage", "declarativeNetRequest", "tabs", "webNavigation", "sidePanel", "declarativeNetRequestFeedback" ],
+   "permissions": [ "storage", "declarativeNetRequest", "tabs", "webNavigation", "declarativeNetRequestFeedback" ],
    "browser_specific_settings": {
 	   "gecko": {
 		   "id" : "google_search_gemini_privacy@github.kinegraphx",

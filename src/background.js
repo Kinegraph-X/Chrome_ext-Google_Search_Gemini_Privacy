@@ -58,8 +58,7 @@
  * - Pousse le résultat au side panel ouvert
  */
 
-importScripts("about-builder.js", "movie-builder.js"); // expose self.buildAboutPanel si non-module,
-// si tu préfères les ES modules, remplace par: import { buildAboutPanel } from "./about-builder.js";
+
 
 chrome.storage.local.set({ tmdbBearerToken: "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI0M2ViNjUzYTk0MTlkYmU4NWI5M2ViMmMzYmFlNmM5NiIsIm5iZiI6MTc4NTcxOTA4OS45NjYsInN1YiI6IjZhNmZlOTMxNTU1NDJkMDg4YTNjNmJlOSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.f-A_ZdXVigPYJ4p3z2Qp62yQrkXqv8ScwxEP_bigKzY" });
 
@@ -113,12 +112,7 @@ chrome.storage.sync.get({ enabled: true }, (data) => {
   updateIcon();
 });
 
-// Charge le token TMDB une fois au démarrage, et à chaque changement en storage.
-async function loadTmdbToken() {
-  const result = await chrome.storage.local.get(TMDB_TOKEN_KEY);
-  setTmdbToken(result[TMDB_TOKEN_KEY] || null);
-}
-loadTmdbToken();
+
 
 chrome.storage.onChanged.addListener((changes, area) => {
   if (area === "local" && changes[TMDB_TOKEN_KEY]) {
@@ -162,67 +156,22 @@ function updateIcon() {
   }).catch(() => {});
 }
 
-// Ouvre le side panel automatiquement sur les pages de résultats Google
-chrome.runtime.onInstalled.addListener(() => {
-  chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true }).catch(() => {});
-});
-
 // The content script asks us to disable the extension when the user clicks
 // "Allow AI Overviews" in the modal. Just flip the toggle; storage.onChanged
 // above takes care of everything else (ruleset, icon, arming the strip).
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message && message.type === "blockAi:disable") {
-    chrome.storage.sync.set({ enabled: false }, () => {
-      sendResponse({ ok: true });
-    });
+    chrome.storage.sync.set(
+      {
+        enabled: false
+      }, 
+      () => {
+        sendResponse({ ok: true });
+      }
+    );
     return true; // keep the channel open for the async sendResponse
   }
-  else if (message.type === "SEARCH_QUERY_DETECTED") {
-
-	(async () => {
-		if (!enabled) return;
-
-		const [aboutResult, movieResult] = await Promise.allSettled([
-		  buildAboutPanel(
-			message.query,
-			{
-				lang: wikipediaLang
-			}
-		  ),
-		  resolveMovieEntity(
-			message.query,
-			{
-				lang: wikipediaLang,
-				minPopularity : - 1
-			}
-		  ),
-		]);
-		
-		const about = aboutResult.status === "fulfilled" ? aboutResult.value : null;
-		if (aboutResult.status === "rejected") {
-		  console.error("[service-worker] buildAboutPanel failed", aboutResult.reason);
-		}
-
-		const movie = movieResult.status === "fulfilled" ? movieResult.value : null;
-		if (movieResult.status === "rejected") {
-		  // Attendu si aucun token TMDB configuré : on ne bloque pas le reste.
-		  console.warn("[service-worker] resolveMovieEntity failed", movieResult.reason);
-		}
-
-		// Diffuse au side panel (et à toute autre vue de l'extension à l'écoute)
-		chrome.runtime.sendMessage({
-		  type: "ABOUT_PANEL_UPDATE",
-		  query: message.query,
-		  about, // peut être null si rien trouvé
-		  movie, // { type: "movie"|"person", data } ou null
-		}).catch(() => {
-		  // Pas de récepteur ouvert (side panel fermé) : on ignore silencieusement
-		});
-	})();
-
-    // Pas de sendResponse synchrone nécessaire ici
-    return false;
-  }
+  return false;
 });
 
 // --- Active-tab strip-on-next-search ---

@@ -1,0 +1,49 @@
+[
+  {
+    "id": 1,
+    "priority": 2,
+    "action": { "type": "allow" },
+    "condition": {
+      "regexFilter": "^https?://[^/]+/search\\?([^#]*&)?udm=",
+      "requestDomains": [
+        "google.com", "google.co.uk", "google.ca", "google.com.au", "google.de",
+        "google.fr", "google.es", "google.it", "google.co.jp", "google.co.in",
+        "google.com.br", "google.com.mx", "google.nl", "google.pl", "google.se",
+        "google.ch", "google.at", "google.be", "google.pt", "google.co.nz",
+        "google.co.kr", "google.ru", "google.com.ar", "google.com.co",
+        "google.com.tw", "google.com.hk", "google.com.sg", "google.co.za",
+        "google.com.ng", "google.com.ph"
+      ],
+      "resourceTypes": ["main_frame"]
+    }
+  },
+  {
+    "id": 2,
+    "priority": 1,
+    "action": {
+      "type": "redirect",
+      "redirect": {
+        "transform": {
+          "queryTransform": {
+            "addOrReplaceParams": [
+              { "key": "udm", "value": "14" }
+            ]
+          }
+        }
+      }
+    },
+    "condition": {
+      "urlFilter": "/search",
+      "requestDomains": [
+        "google.com", "google.co.uk", "google.ca", "google.com.au", "google.de",
+        "google.fr", "google.es", "google.it", "google.co.jp", "google.co.in",
+        "google.com.br", "google.com.mx", "google.nl", "google.pl", "google.se",
+        "google.ch", "google.at", "google.be", "google.pt", "google.co.nz",
+        "google.co.kr", "google.ru", "google.com.ar", "google.com.co",
+        "google.com.tw", "google.com.hk", "google.com.sg", "google.co.za",
+        "google.com.ng", "google.com.ph"
+      ],
+      "resourceTypes": ["main_frame"]
+    }
+  }
+]

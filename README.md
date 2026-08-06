@@ -6,6 +6,12 @@ also restores some of the native Google features that are missing from the
 plain "Web" tab (knowledge panels, movie casts) by calling open,
 privacy-respecting APIs instead (OpenStreetMap, Wikipedia, TMDB).
 
+GSGP adds "un p'tit truc en plus" to Google Search
+
+![Illustration : Un p'tit truc en plus](readme_illustration_01.png "Un p'tit truc en plus")
+
+![Illustration : recherches supplémentaires nécessaires](readme_illustration_02.png "Des recherches supplémentaires sont nécessaires")
+
 ## Why this one?
 
 Most similar extensions **hide** the AI Overview panel after it has already
