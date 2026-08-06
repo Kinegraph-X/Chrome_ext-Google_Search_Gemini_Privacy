@@ -12,7 +12,9 @@ GSGP adds "un p'tit truc en plus" to Google Search
 
 ![Illustration : filmographie](readme_illustration_03.png "Filmographie pour une recherche ssur un réalisateur")
 
-![Illustration : recherches supplémentaires nécessaires](readme_illustration_02.png "Des recherches supplémentaires sont nécessaires")
+![Illustration : Paris sources multiples](readme_illustration_04.png "Paris matches a town and a film")
+
+![Illustration : Additional research required](readme_illustration_02.png "Additional researches are required")
 
 ## Why this one?
 
