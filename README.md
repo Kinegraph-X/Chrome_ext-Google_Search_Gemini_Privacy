@@ -12,6 +12,8 @@ GSGP adds "un p'tit truc en plus" to Google Search
 
 ![Illustration : recherches supplémentaires nécessaires](readme_illustration_02.png "Des recherches supplémentaires sont nécessaires")
 
+![Illustration : filmographie](readme_illustration_03.png "Filmographie pour une recherche ssur un réalisateur")
+
 ## Why this one?
 
 Most similar extensions **hide** the AI Overview panel after it has already
