@@ -72,7 +72,6 @@
 .gsgp-abstract {
   font-size: 14px;
   line-height: 1.5;
-  margin-bottom: 12px;
 }
 
 .gsgp-map {
@@ -85,7 +84,7 @@
 }
 
 .gsgp-link-row {
-  margin-top: 8px;
+  margin: 8px 0px 16px 0px;
 }
 
 .gsgp-btn-link {

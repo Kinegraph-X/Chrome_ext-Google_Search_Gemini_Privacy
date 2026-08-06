@@ -41,12 +41,6 @@ export const abstractEl = document.createElement("div");
 abstractEl.className = "gsgp-abstract";
 abstractEl.id = "gsgpAbstract";
 
-export const mapEl = document.createElement("iframe");
-mapEl.className = "gsgp-map";
-mapEl.id = "gsgpMap";
-mapEl.loading = "lazy";
-
-
 // --- Official site ---
 export const officialSiteRow = document.createElement("div");
 officialSiteRow.className = "gsgp-link-row";
@@ -86,6 +80,11 @@ abstractUrlLabel.id = "gsgpAbstractUrlLabel";
 abstractUrlLink.appendChild(abstractUrlLabel);
 abstractUrlRow.appendChild(abstractUrlLink);
 
+// --- Map OSM ---
+export const mapEl = document.createElement("iframe");
+mapEl.className = "gsgp-map";
+mapEl.id = "gsgpMap";
+mapEl.loading = "lazy";
 
 // --- Source ---
 export const sourceLine = document.createElement("div");
@@ -98,9 +97,9 @@ panelEl.append(
   headingEl,
   imageEl,
   abstractEl,
-  mapEl,
   officialSiteRow,
   abstractUrlRow,
+  mapEl,
   sourceLine
 );
 
