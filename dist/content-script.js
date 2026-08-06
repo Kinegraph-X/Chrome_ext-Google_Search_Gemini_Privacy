@@ -215,8 +215,8 @@
             }
             // Filet de sécurité si la recherche échoue ou ne renvoie rien.
             if (!wikiTitle) {
-            wikiTitle =
-                place?.namedetails?.name || place?.display_name?.split(",")[0] || query;
+                wikiTitle =
+                    place?.namedetails?.name || place?.display_name?.split(",")[0] || query;
             }
         }
 
@@ -238,9 +238,9 @@
             abstractSource: summary ? constants.wikipedia : null,
             abstractUrl: summary?.content_urls?.desktop?.page || null,
             image:
-            summary?.thumbnail?.source || summary?.originalimage?.source || null,
+                summary?.thumbnail?.source || summary?.originalimage?.source || null,
             coordinates: place
-            ? { lat: parseFloat(place.lat), lon: parseFloat(place.lon) }
+                ? { lat: parseFloat(place.lat), lon: parseFloat(place.lon) }
             : summary?.coordinates
                 ? { lat: summary.coordinates.lat, lon: summary.coordinates.lon }
                 : null,
