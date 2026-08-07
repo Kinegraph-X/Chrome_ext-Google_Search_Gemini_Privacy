@@ -743,24 +743,9 @@
               movie : movieData
             }
           );
-          // chrome.tabs.sendMessage(
-          //   sender.tab.id,
-          //   {
-          //     type: "DATA_AVAILABLE",
-          //     about : aboutData,
-          //     movie : movieData
-          //   }
-          // );
-          // chrome.runtime.sendMessage(
-          //   {
-          //     type: "DATA_AVAILABLE",
-          //     about : aboutData,
-          //     movie : movieData
-          //   }
-          // );
         })();
 
-        return true;
+        return true;  // keep the channel open for the async sendResponse
       }
       return false;
     });

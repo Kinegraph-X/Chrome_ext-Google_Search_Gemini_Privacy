@@ -378,15 +378,6 @@
 
     let lastUrl = window.location.href;
 
-
-    // chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    //   console.log("receive message")
-    //   if (message.type === "DATA_AVAILABLE") {
-    //     showData(message.about, message.movie)
-    //   }
-    // });
-
-
     function getSearchQuery() {
       const params = new URLSearchParams(window.location.search);
       return params.get("q");
@@ -394,33 +385,6 @@
 
     async function sendQuery(query) {
       if (!query) return;
-      // const [aboutResult, movieResult] = await Promise.allSettled([
-      //   about.buildAboutPanel(
-      //     query,
-      //     {
-      //       lang: wikipediaLang
-      //     }
-      //   ),
-      //   movie.resolveMovieEntity(
-      //     query,
-      //     {
-      //       lang: wikipediaLang,
-      //       minPopularity : - 1
-      //     }
-      //   )
-      // ]);
-
-      // aboutData = aboutResult.status === "fulfilled" ? aboutResult.value : null;
-      // if (aboutResult.status === "rejected") {
-      //   console.error("[content-script] buildAboutPanel failed", aboutResult.reason);
-      //   return;
-      // }
-
-      // movieData = movieResult.status === "fulfilled" ? movieResult.value : null;
-      // if (movieResult.status === "rejected") {
-      //   console.error("[content-script] resolveMovieEntity failed", movieResult.reason);
-      //   return;
-      // }
       chrome.runtime.sendMessage(
         {
           type: "SEARCH_QUERY_DETECTED",
@@ -516,31 +480,6 @@
         return;
       }
 
-      // const hasAbout = render(aboutData, query);
-      // const hasMovie = renderMovie(movieData, query);
-
-      // if (!hasAbout && !hasMovie) {
-      //   setEmptyState();
-      //   return;
-      // }
-
-      // setSuccessState();
-
-      // // --- Movie infos are in-between Google results ---
-      // if (hasMovie) {
-      //   const title = titleEl.cloneNode(true);
-      //   moviePanelEl.prepend(title)
-
-      //   containerEl.style.display = "flex";
-      //   containerEl.style.flexFlow = "row";
-
-      //   rsoBlock
-      //     .querySelector(":scope > :nth-child(3)")
-      //     .after(
-      //       moviePanelEl
-      //     );
-      // }
-
       // --- Responsiveness ---
       if (!resizeListenerInstalled) {
         const mq = window.matchMedia(`(min-width: ${constants.GGOGLE_RESPONSIVE_BREAKPOINT}px)`);
@@ -548,6 +487,8 @@
         resizeListenerInstalled = true;
       }
     }
+
+
 
     function showData(aboutData, movieData, query) {
       const hasAbout = render(aboutData, query);
