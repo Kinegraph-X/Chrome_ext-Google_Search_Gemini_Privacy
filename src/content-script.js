@@ -13,18 +13,31 @@ import * as movie from "./getMovie.js"
 import {
   fragment,
   containerEl,
+  flexBlockEl,
   rootEl,
   titleEl,
   emptyEl,
   panelEl,
   moviePanelEl,
+  imagesPanelEl,
   movieHeadingEl
 } from "./inpageBlock.js"
-import {render, renderMovie} from "./buildAboutPanel.js"
+import {
+  render,
+  renderMovie,
+  renderImages
+} from "./buildAboutPanel.js"
 
 const uiLanguage = chrome.i18n.getUILanguage() || "en-US";
 const wikipediaLang = uiLanguage.split("-")[0] || "en";
 const tmdbLang = uiLanguage;
+let theme;
+const darkModeMql = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)');
+if (darkModeMql && darkModeMql.matches) {
+  theme = 'dark'
+} else {
+  theme = 'light'
+}
 
 let lastUrl = window.location.href;
 
@@ -50,6 +63,7 @@ async function sendQuery(query) {
         showData(
           response.about,
           response.movie,
+          response.images,
           query
         )
       }
@@ -63,10 +77,14 @@ async function sendQuery(query) {
 
 function onLayoutChange(rsoBlock, centerCol, rootEl, e) {
   if (!e.matches) {
-    rsoBlock.prepend(rootEl);
+    rsoBlock.prepend(
+      rootEl
+    );
   }
   else {
-    centerCol.append(rootEl);
+    centerCol.append(
+      rootEl
+    );
   }
 }
 
@@ -140,11 +158,14 @@ async function init() {
 
 
 
-function showData(aboutData, movieData, query) {
-  const hasAbout = render(aboutData, query);
+function showData(aboutData, movieData, imagesData, query) {
+  const rsoBlock = document.querySelector("#rso");
+  const hasAbout = render(aboutData, query, theme);
   const hasMovie = renderMovie(movieData, query);
+  const hasImages = renderImages(imagesData);
+  
 
-  if (!hasAbout && !hasMovie) {
+  if (!hasAbout && !hasMovie && !hasImages) {
     setEmptyState();
     return;
   }
@@ -156,13 +177,23 @@ function showData(aboutData, movieData, query) {
     const title = titleEl.cloneNode(true);
     moviePanelEl.prepend(title)
 
-    containerEl.style.display = "flex";
-    containerEl.style.flexFlow = "row";
-
+    // containerEl.style.display = "flex";
+    // containerEl.style.flexFlow = "row";
     rsoBlock
       .querySelector(":scope > :nth-child(3)")
       .after(
         moviePanelEl
+      );
+  }
+
+  if (hasImages) {
+    const title = titleEl.cloneNode(true);
+    imagesPanelEl.prepend(title)
+
+    rsoBlock
+      .querySelector(":scope > :nth-child(6)")
+      .after(
+        imagesPanelEl
       );
   }
 }

@@ -38,8 +38,23 @@
   box-sizing: inherit;
 }
 
-#search #gsgpPanel {
-  width : 260px;
+#gsgpFlexBlock {
+  display : block;
+}
+
+#search #gsgpFlexBlock {
+  display : flex;
+  flex-flow : row;
+}
+
+#search #gsgpAbout {
+  width : 278px;
+  padding : 0px
+}
+
+#search .gsgp-map {
+  max-width : 327px;
+  margin: 30px 12px 12px;
 }
 
 .gsgp-empty {
@@ -83,8 +98,19 @@
   margin-bottom: 12px;
 }
 
+@media (prefers-color-scheme: dark) {
+  .gsgp-map {
+    filter: invert(100%) hue-rotate(180deg) saturate(50%) brightness(210%) contrast(90%);
+  }
+}
+
 .gsgp-link-row {
-  margin: 8px 0px 16px 0px;
+  margin: 8px 8px 16px 0px;
+}
+
+
+#gsgpAbstractUrlRow, #gsgpOfficialSiteRow {
+  display : inline-block;
 }
 
 .gsgp-btn-link {
@@ -108,7 +134,16 @@
 .gsgp-source {
   font-size: 11px;
   color: var(--gsgp-text-muted);
-  margin-top: 16px;
+}
+
+.gsgp-images-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+#search .gsgp-images-grid {
+    grid-template-columns: repeat(4, 1fr);
 }
 
 .gsgp-movie-panel {
@@ -124,6 +159,10 @@
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 12px;
+}
+
+#search .gsgp-cast-grid {
+  grid-template-columns: repeat(3, 1fr);
 }
 
 .gsgp-person-card {

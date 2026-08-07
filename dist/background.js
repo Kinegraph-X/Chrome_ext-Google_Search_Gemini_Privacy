@@ -41,14 +41,35 @@
         // Nominatim/Wikipedia n'ont pas ce problème.
         TMDB_NOISE_WORDS : /\b(film|movie|casting|cast)\b/gi,
         TMDB_MIN_POPULARITY : 5,
-        MOVIE_THUMB_COUNT : 12,
+        MOVIE_THUMB_COUNT : 9,
 
-        osmUrlTemplate : (str, bbox, marker) => {
-            return `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&marker=${marker}&layer=mapnik`
+        osmUrlTemplate : (str, bbox, marker, theme) => {
+            return `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&marker=${marker}&theme=${theme}`   // &layer=mapnik
         },
+        OSM_ZOOM_DELTA : 2,
         googleSearchUrlTempate : (str, query) => {
             return `https://www.google.com/search?q=${encodeURIComponent(query)}`;
-        }
+        },
+
+        // curl --header "Content-Type: application/json" --request POST --data '{"name" : "name", "description" : "thematic image research", "email": "mail@mail.com"}' https://api.openverse.org/v1/auth_tokens/register/
+        openVerseRegistration : {
+            // [Redacted]
+            // "name":"name",
+            // "msg":"Check your email for a verification link."
+        },
+        // curl --header "Content-Type: application/x-www-form-urlencoded" --request POST --data 'client_id=<client_id>>&client_secret=<client_secret>&grant_type=client_credentials' https://api.openverse.org/v1/auth_tokens/token/
+        openVerseToken : {
+            "access_token":"blGO9qXHLNIN6XbFVyDTsXPUJtV6pJ",
+            "expires_in":43200,
+            "token_type":"Bearer",
+            "scope":"read write"
+        },
+        openVerseUrl : `https://api.openverse.org/v1/images?`,
+        openVerseLicense : "cc0,by,by-sa",
+        openVerseLimit : "10",
+        openVerseMinScore : 0.25,
+        IMAGES_COUNT : 4,
+        MAX_IMAGES_COUNT : 16
     };
 
     // --- Throttle simple pour respecter la politique d'usage de Nominatim (1 req/s) ---
@@ -90,7 +111,7 @@
     }
 
     // --- 1. Nominatim : tente de résoudre la query comme un lieu ---
-    async function fetchNominatim(query) {
+    async function fetchNominatim(query, lang) {
         await throttleNominatim();
         const params = new URLSearchParams({
             q: query,
@@ -103,7 +124,11 @@
         
         const url = constants.nominatimUrl + params.toString();
         const res = await fetch(url, {
-            headers: { "User-Agent": constants.ABOUT_BUILDER_UA, Accept: "application/json" },
+            headers: {
+                "User-Agent": constants.ABOUT_BUILDER_UA,
+                Accept: "application/json",
+                "Accept-Language": lang
+            },
         });
         
         if (!res.ok) return null;
@@ -178,7 +203,7 @@
         let place = null;
         let wikidataEntity = null;
         try {
-            place = await fetchNominatim(query);
+            place = await fetchNominatim(query, opts.lang);
             console.log("place", place);
             if (!isPlaceNotable(place)) {
                 place = null;
@@ -200,12 +225,12 @@
         // sinon on résout le titre exact via l'endpoint de recherche (gère la
         // désambiguation, ex: query "L'Odyssée film" -> "L'Odyssée (film, 2016)").
         let wikiTitle = null;
-        let wikiLang = lang;
+        let wikiLang = opts.lang;
         const wikipediaTag = place?.extratags?.wikipedia;
         console.log("wikipediaTag", wikipediaTag);
         if (wikipediaTag && wikipediaTag.includes(":")) {
             const [tagLang, ...rest] = wikipediaTag.split(":");
-            wikiLang = tagLang;
+            // wikiLang = tagLang;
             wikiTitle = rest.join(":");
             console.log("wikipediaTag wikiTitle", wikiTitle);
         } else {
@@ -540,6 +565,76 @@
         }
     }
 
+    async function fetchOpenVerse(query) {
+        const url = constants.openVerseUrl;
+        const params = new URLSearchParams({
+            q: query,
+            page_size : constants.MAX_IMAGES_COUNT,
+            license : constants.openVerseLicense
+        });
+        
+        const res = await fetch(
+            url + params,
+            {
+                headers: { 
+                    "User-Agent": constants.ABOUT_BUILDER_UA,
+                    Accept: "application/json",
+                    Authorization: `Bearer ${constants.openVerseToken.access_token}`
+                }
+            }
+        );
+        if (!res.ok) return null;
+        
+        const data = await res.json();
+        
+        if (!Array.isArray(data.results) || data.results.length === 0)
+            return null;
+        console.log(data.results);
+
+        let count = 0;
+        const tagMatching = data.results.filter((item, key) => {
+            if (item.fields_matched.includes("tags.name")) {
+                count++;
+                return item;
+            }    });
+        console.log(tagMatching);
+
+        return {
+            count : count,
+            results : tagMatching,
+            tag : query
+        };
+    }
+
+
+    async function buildImagesPanel(query) {
+        const images = await fetchOpenVerse(query);
+        console.log(images);
+        if (!images)
+            return null
+
+        const score = images.count / constants.MAX_IMAGES_COUNT;
+        if (score < constants.openVerseMinScore) {
+            return null
+        }
+
+        const result = {
+            images : images.results.map(
+                (i) => (
+                    {
+                        license: i.license,
+                        author: i.creator.replace(/\s/, '&nbsp;'),
+                        thumbnailUrl: i.thumbnail,
+                        imageUrl : i.url
+                    }
+                )
+            ),
+            tag : images.tag
+        };
+
+        return result;
+    }
+
     // background.js — Block AI Overview
     // Enables/disables a static declarativeNetRequest ruleset that redirects
     // fresh /search navigations (with no udm param) to udm=14, which suppresses
@@ -690,7 +785,6 @@
     // "Allow AI Overviews" in the modal. Just flip the toggle; storage.onChanged
     // above takes care of everything else (ruleset, icon, arming the strip).
     chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-      console.log("receive message", message);
       if (message && message.type === "blockAi:disable") {
         chrome.storage.sync.set(
           {
@@ -704,7 +798,11 @@
       }
       else if (message.type === "SEARCH_QUERY_DETECTED") {
         (async () => {
-          const [aboutResult, movieResult] = await Promise.allSettled([
+          const [
+            aboutResult,
+            movieResult,
+            imagesResult
+          ] = await Promise.allSettled([
             buildAboutPanel(
               message.query,
               {
@@ -717,7 +815,12 @@
                 lang: message.lang,
                 minPopularity : -1
               }
-            )
+            ),
+            buildImagesPanel(
+              message.query,
+              {
+                lang: message.lang}
+            ),
           ]);
 
           const aboutData = aboutResult.status === "fulfilled" ? aboutResult.value : null;
@@ -732,15 +835,23 @@
             return;
           }
 
-          const error = chrome.runtime.lastError;
-          if (error)
-            console.log('runtime lastError', error.message);
+          const imagesData = imagesResult.status === "fulfilled" ? imagesResult.value : null;
+          if (imagesResult.status === "rejected") {
+            console.error("[content-script] resolveMovieEntity failed", imagesResult.reason);
+            return;
+          }
 
+          // const error = chrome.runtime.lastError;
+          // if (error)
+          //   console.log('runtime lastError', error.message)
+          console.log(imagesData);
           sendResponse(
             {
               type: "DATA_AVAILABLE",
               about : aboutData,
-              movie : movieData
+              movie : movieData,
+              images : imagesData,
+              query : message.query
             }
           );
         })();

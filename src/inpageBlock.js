@@ -23,6 +23,14 @@ export const containerEl = document.createElement("div");
 containerEl.id = "gsgpContainer";
 containerEl.style.display = "block";
 
+// --- Container to handle toggling block/flex  ----
+export const flexBlockEl = document.createElement("div");
+flexBlockEl.id = "gsgpFlexBlock";
+
+export const aboutEl = document.createElement("div");
+aboutEl.id = "gsgpAbout";
+aboutEl.style.display = "block";
+
 // --- Main panel ---
 export const panelEl = document.createElement("div");
 panelEl.id = "gsgpPanel";
@@ -45,7 +53,7 @@ abstractEl.id = "gsgpAbstract";
 export const officialSiteRow = document.createElement("div");
 officialSiteRow.className = "gsgp-link-row";
 officialSiteRow.id = "gsgpOfficialSiteRow";
-officialSiteRow.style.display = "none";
+officialSiteRow.style.visibility = "hidden";
 
 export const officialSiteLink = document.createElement("a");
 officialSiteLink.className = "gsgp-btn-link";
@@ -65,7 +73,7 @@ officialSiteRow.appendChild(officialSiteLink);
 export const abstractUrlRow = document.createElement("div");
 abstractUrlRow.className = "gsgp-link-row";
 abstractUrlRow.id = "gsgpAbstractUrlRow";
-abstractUrlRow.style.display = "none";
+abstractUrlRow.style.visibility = 'hidden'
 
 export const abstractUrlLink = document.createElement("a");
 abstractUrlLink.className = "gsgp-btn-link";
@@ -91,15 +99,22 @@ export const sourceLine = document.createElement("div");
 sourceLine.className = "gsgp-source";
 sourceLine.id = "gsgpSourceLine";
 
+aboutEl.append(
+  headingEl,
+  imageEl,
+);
+
+flexBlockEl.append(
+  aboutEl,
+  mapEl
+)
 
 // --- About Panel ---
 panelEl.append(
-  headingEl,
-  imageEl,
+  flexBlockEl,
   abstractEl,
   officialSiteRow,
   abstractUrlRow,
-  mapEl,
   sourceLine
 );
 
@@ -123,6 +138,25 @@ movieSourceLine.className = "gsgp-source";
 movieSourceLine.id = "gsgpMovieSourceLine";
 
 
+// --- Images panel ---
+export const imagesPanelEl = document.createElement("div");
+imagesPanelEl.className = "gsgp-movie-panel";
+imagesPanelEl.id = "gsgpImagesPanel";
+imagesPanelEl.style.display = "none";
+
+export const imagesHeadingEl = document.createElement("h2");
+imagesHeadingEl.className = "gsgp-movie-heading";
+imagesHeadingEl.id = "gsgpImagesHeading";
+
+export const imagesGridEl = document.createElement("div");
+imagesGridEl.className = "gsgp-images-grid";
+imagesGridEl.id = "gsgpImagesCastGrid";
+
+export const imagesSourceLine = document.createElement("div");
+imagesSourceLine.className = "gsgp-source";
+imagesSourceLine.id = "gsgpImagesSourceLine";
+
+
 
 moviePanelEl.append(
   movieHeadingEl,
@@ -130,10 +164,17 @@ moviePanelEl.append(
   movieSourceLine
 );
 
+imagesPanelEl.append(
+  imagesHeadingEl,
+  imagesGridEl,
+  imagesSourceLine
+)
+
 containerEl.append(
   emptyEl,
   panelEl,
-  moviePanelEl
+  moviePanelEl,
+  imagesPanelEl
 )
 
 rootEl.append(

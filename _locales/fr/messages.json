@@ -63,6 +63,13 @@
          "name": { "content": "$1", "example": "Christopher Nolan" }
       }
    },
+   "sidePanelImagesHeading": {
+      "description": "Heading for an image panel",
+      "message": "Images sous licence libre — $TITLE$",
+      "placeholders": {
+         "title": { "content": "$1", "example": "Inception" }
+      }
+   },
    "sidePanelShowMore": {
       "description": "Button to reveal the remaining cast/filmography entries",
       "message": "Voir plus ($COUNT$)",

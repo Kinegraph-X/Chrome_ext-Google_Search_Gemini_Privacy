@@ -41,17 +41,38 @@
         // Nominatim/Wikipedia n'ont pas ce problème.
         TMDB_NOISE_WORDS : /\b(film|movie|casting|cast)\b/gi,
         TMDB_MIN_POPULARITY : 5,
-        MOVIE_THUMB_COUNT : 12,
+        MOVIE_THUMB_COUNT : 9,
 
-        osmUrlTemplate : (str, bbox, marker) => {
-            return `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&marker=${marker}&layer=mapnik`
+        osmUrlTemplate : (str, bbox, marker, theme) => {
+            return `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&marker=${marker}&theme=${theme}`   // &layer=mapnik
         },
+        OSM_ZOOM_DELTA : 2,
         googleSearchUrlTempate : (str, query) => {
             return `https://www.google.com/search?q=${encodeURIComponent(query)}`;
-        }
+        },
+
+        // curl --header "Content-Type: application/json" --request POST --data '{"name" : "name", "description" : "thematic image research", "email": "mail@mail.com"}' https://api.openverse.org/v1/auth_tokens/register/
+        openVerseRegistration : {
+            // [Redacted]
+            // "name":"name",
+            // "msg":"Check your email for a verification link."
+        },
+        // curl --header "Content-Type: application/x-www-form-urlencoded" --request POST --data 'client_id=<client_id>>&client_secret=<client_secret>&grant_type=client_credentials' https://api.openverse.org/v1/auth_tokens/token/
+        openVerseToken : {
+            "access_token":"blGO9qXHLNIN6XbFVyDTsXPUJtV6pJ",
+            "expires_in":43200,
+            "token_type":"Bearer",
+            "scope":"read write"
+        },
+        openVerseUrl : `https://api.openverse.org/v1/images?`,
+        openVerseLicense : "cc0,by,by-sa",
+        openVerseLimit : "10",
+        openVerseMinScore : 0.25,
+        IMAGES_COUNT : 4,
+        MAX_IMAGES_COUNT : 16
     };
 
-    const sheet = new CSSStyleSheet();sheet.replaceSync(":root {\r\n  --panel-width: 421px;\r\n  --gsgp-text: #202124;\r\n  --gsgp-text-muted: #5f6368;\r\n  --gsgp-bg: #ffffff;\r\n  --gsgp-border: #e8eaed;\r\n  --gsgp-accent: #1a73e8;\r\n  --gsgp-accent-text: #ffffff;\r\n  --gsgp-card-bg: #f1f3f4;\r\n}\r\n\r\n@media (prefers-color-scheme: dark) {\r\n  :root {\r\n    --gsgp-text: #e8eaed;\r\n    --gsgp-text-muted: #9aa0a6;\r\n    --gsgp-bg: #22242a;\r\n    --gsgp-border: #3c4043;\r\n    --gsgp-accent: #8ab4f8;\r\n    --gsgp-accent-text: #202124;\r\n    --gsgp-card-bg: #303134;\r\n  }\r\n}\r\n\r\n.gsgp-root {\r\n  display : block;\r\n  font-family: -apple-system, system-ui, sans-serif;\r\n  min-width : var(--panel-width);\r\n  margin: 0;\r\n  padding: 16px;\r\n  color: var(--gsgp-text);\r\n  background: var(--gsgp-bg);\r\n  box-sizing: border-box;\r\n}\r\n\r\n.gsgp-root *,\r\n.gsgp-root *::before,\r\n.gsgp-root *::after {\r\n  box-sizing: inherit;\r\n}\r\n\r\n#search #gsgpPanel {\r\n  width : 260px;\r\n}\r\n\r\n.gsgp-empty {\r\n  color: var(--gsgp-text-muted);\r\n  font-size: 12px;\r\n}\r\n\r\n#gsgpPageTitle {\r\n  color : var(--gsgp-text-muted);\r\n  font-size : 13px;\r\n  margin-bottom : 21px;\r\n}\r\n\r\n.gsgp-heading {\r\n  font-size: 18px;\r\n  font-weight: 600;\r\n  margin: 0 0 8px;\r\n}\r\n\r\n.gsgp-image {\r\n  display: none;\r\n  width: 100%;\r\n  max-height: 260px;\r\n  object-fit: contain;\r\n  background: var(--gsgp-card-bg);\r\n  border-radius: 8px;\r\n  margin-bottom: 12px;\r\n}\r\n\r\n.gsgp-abstract {\r\n  font-size: 14px;\r\n  line-height: 1.5;\r\n}\r\n\r\n.gsgp-map {\r\n  width: 100%;\r\n  height: 220px;\r\n  border: 0;\r\n  border-radius: 8px;\r\n  display: none;\r\n  margin-bottom: 12px;\r\n}\r\n\r\n.gsgp-link-row {\r\n  margin: 8px 0px 16px 0px;\r\n}\r\n\r\n.gsgp-btn-link {\r\n  display: inline-flex;\r\n  align-items: center;\r\n  gap: 6px;\r\n  padding: 8px 14px;\r\n  background: var(--gsgp-accent);\r\n  color: var(--gsgp-accent-text);\r\n  border-radius: 999px;\r\n  text-decoration: none;\r\n  font-size: 13px;\r\n  font-weight: 500;\r\n  transition: opacity 0.15s ease;\r\n}\r\n\r\n.gsgp-btn-link:hover {\r\n  opacity: 0.85;\r\n}\r\n\r\n.gsgp-source {\r\n  font-size: 11px;\r\n  color: var(--gsgp-text-muted);\r\n  margin-top: 16px;\r\n}\r\n\r\n.gsgp-movie-panel {\r\n  padding-bottom : 21px;\r\n}\r\n\r\n.gsgp-movie-heading {\r\n  font-size: 16px;\r\n  margin: 0 0 10px;\r\n}\r\n\r\n.gsgp-cast-grid {\r\n  display: grid;\r\n  grid-template-columns: repeat(4, 1fr);\r\n  gap: 12px;\r\n}\r\n\r\n.gsgp-person-card {\r\n  text-align: center;\r\n  font-size: 12px;\r\n  display: block;\r\n  color: inherit;\r\n  text-decoration: none;\r\n  max-width: 131px;\r\n  border-radius: 8px;\r\n  padding: 4px;\r\n  transition: background 0.15s ease;\r\n}\r\n\r\na.gsgp-person-card:hover {\r\n  background: var(--gsgp-card-bg);\r\n  cursor: pointer;\r\n}\r\n\r\n.gsgp-more-btn {\r\n  grid-column: 1 / -1;\r\n  padding: 8px;\r\n  background: transparent;\r\n  border: 1px solid var(--gsgp-border);\r\n  border-radius: 8px;\r\n  color: var(--gsgp-text);\r\n  font-size: 12px;\r\n  font-weight: 500;\r\n  cursor: pointer;\r\n  transition: background 0.15s ease;\r\n}\r\n\r\n.gsgp-more-btn:hover {\r\n  background: var(--gsgp-card-bg);\r\n}\r\n\r\n.gsgp-person-img {\r\n  display: block;\r\n  width: 100%;\r\n  aspect-ratio: 13 / 16;\r\n  border-radius: 6px;\r\n  object-fit: cover;\r\n  background: var(--gsgp-card-bg);\r\n  margin: 0 auto 6px;\r\n}\r\n\r\n.gsgp-person-img-placeholder {\r\n  background-image: linear-gradient(\r\n    135deg,\r\n    var(--gsgp-card-bg) 0%,\r\n    var(--gsgp-border) 50%,\r\n    var(--gsgp-card-bg) 100%\r\n  );\r\n  background-position: center;\r\n  background-repeat: no-repeat;\r\n  background-size: 100% 100%;\r\n}\r\n\r\n.gsgp-person-name {\r\n  font-weight: 600;\r\n}\r\n\r\n.gsgp-person-subtitle {\r\n  color: var(--gsgp-text);\r\n  opacity: 0.75;\r\n}");
+    const sheet = new CSSStyleSheet();sheet.replaceSync(":root {\r\n  --panel-width: 421px;\r\n  --gsgp-text: #202124;\r\n  --gsgp-text-muted: #5f6368;\r\n  --gsgp-bg: #ffffff;\r\n  --gsgp-border: #e8eaed;\r\n  --gsgp-accent: #1a73e8;\r\n  --gsgp-accent-text: #ffffff;\r\n  --gsgp-card-bg: #f1f3f4;\r\n}\r\n\r\n@media (prefers-color-scheme: dark) {\r\n  :root {\r\n    --gsgp-text: #e8eaed;\r\n    --gsgp-text-muted: #9aa0a6;\r\n    --gsgp-bg: #22242a;\r\n    --gsgp-border: #3c4043;\r\n    --gsgp-accent: #8ab4f8;\r\n    --gsgp-accent-text: #202124;\r\n    --gsgp-card-bg: #303134;\r\n  }\r\n}\r\n\r\n.gsgp-root {\r\n  display : block;\r\n  font-family: -apple-system, system-ui, sans-serif;\r\n  min-width : var(--panel-width);\r\n  margin: 0;\r\n  padding: 16px;\r\n  color: var(--gsgp-text);\r\n  background: var(--gsgp-bg);\r\n  box-sizing: border-box;\r\n}\r\n\r\n.gsgp-root *,\r\n.gsgp-root *::before,\r\n.gsgp-root *::after {\r\n  box-sizing: inherit;\r\n}\r\n\r\n#gsgpFlexBlock {\r\n  display : block;\r\n}\r\n\r\n#search #gsgpFlexBlock {\r\n  display : flex;\r\n  flex-flow : row;\r\n}\r\n\r\n#search #gsgpAbout {\r\n  width : 278px;\r\n  padding : 0px\r\n}\r\n\r\n#search .gsgp-map {\r\n  max-width : 327px;\r\n  margin: 30px 12px 12px;\r\n}\r\n\r\n.gsgp-empty {\r\n  color: var(--gsgp-text-muted);\r\n  font-size: 12px;\r\n}\r\n\r\n#gsgpPageTitle {\r\n  color : var(--gsgp-text-muted);\r\n  font-size : 13px;\r\n  margin-bottom : 21px;\r\n}\r\n\r\n.gsgp-heading {\r\n  font-size: 18px;\r\n  font-weight: 600;\r\n  margin: 0 0 8px;\r\n}\r\n\r\n.gsgp-image {\r\n  display: none;\r\n  width: 100%;\r\n  max-height: 260px;\r\n  object-fit: contain;\r\n  background: var(--gsgp-card-bg);\r\n  border-radius: 8px;\r\n  margin-bottom: 12px;\r\n}\r\n\r\n.gsgp-abstract {\r\n  font-size: 14px;\r\n  line-height: 1.5;\r\n}\r\n\r\n.gsgp-map {\r\n  width: 100%;\r\n  height: 220px;\r\n  border: 0;\r\n  border-radius: 8px;\r\n  display: none;\r\n  margin-bottom: 12px;\r\n}\r\n\r\n@media (prefers-color-scheme: dark) {\r\n  .gsgp-map {\r\n    filter: invert(100%) hue-rotate(180deg) saturate(50%) brightness(210%) contrast(90%);\r\n  }\r\n}\r\n\r\n.gsgp-link-row {\r\n  margin: 8px 8px 16px 0px;\r\n}\r\n\r\n\r\n#gsgpAbstractUrlRow, #gsgpOfficialSiteRow {\r\n  display : inline-block;\r\n}\r\n\r\n.gsgp-btn-link {\r\n  display: inline-flex;\r\n  align-items: center;\r\n  gap: 6px;\r\n  padding: 8px 14px;\r\n  background: var(--gsgp-accent);\r\n  color: var(--gsgp-accent-text);\r\n  border-radius: 999px;\r\n  text-decoration: none;\r\n  font-size: 13px;\r\n  font-weight: 500;\r\n  transition: opacity 0.15s ease;\r\n}\r\n\r\n.gsgp-btn-link:hover {\r\n  opacity: 0.85;\r\n}\r\n\r\n.gsgp-source {\r\n  font-size: 11px;\r\n  color: var(--gsgp-text-muted);\r\n}\r\n\r\n.gsgp-images-grid {\r\n  display: grid;\r\n  grid-template-columns: repeat(4, 1fr);\r\n  gap: 12px;\r\n}\r\n\r\n#search .gsgp-images-grid {\r\n    grid-template-columns: repeat(4, 1fr);\r\n}\r\n\r\n.gsgp-movie-panel {\r\n  padding-bottom : 21px;\r\n}\r\n\r\n.gsgp-movie-heading {\r\n  font-size: 16px;\r\n  margin: 0 0 10px;\r\n}\r\n\r\n.gsgp-cast-grid {\r\n  display: grid;\r\n  grid-template-columns: repeat(4, 1fr);\r\n  gap: 12px;\r\n}\r\n\r\n#search .gsgp-cast-grid {\r\n  grid-template-columns: repeat(3, 1fr);\r\n}\r\n\r\n.gsgp-person-card {\r\n  text-align: center;\r\n  font-size: 12px;\r\n  display: block;\r\n  color: inherit;\r\n  text-decoration: none;\r\n  max-width: 131px;\r\n  border-radius: 8px;\r\n  padding: 4px;\r\n  transition: background 0.15s ease;\r\n}\r\n\r\na.gsgp-person-card:hover {\r\n  background: var(--gsgp-card-bg);\r\n  cursor: pointer;\r\n}\r\n\r\n.gsgp-more-btn {\r\n  grid-column: 1 / -1;\r\n  padding: 8px;\r\n  background: transparent;\r\n  border: 1px solid var(--gsgp-border);\r\n  border-radius: 8px;\r\n  color: var(--gsgp-text);\r\n  font-size: 12px;\r\n  font-weight: 500;\r\n  cursor: pointer;\r\n  transition: background 0.15s ease;\r\n}\r\n\r\n.gsgp-more-btn:hover {\r\n  background: var(--gsgp-card-bg);\r\n}\r\n\r\n.gsgp-person-img {\r\n  display: block;\r\n  width: 100%;\r\n  aspect-ratio: 13 / 16;\r\n  border-radius: 6px;\r\n  object-fit: cover;\r\n  background: var(--gsgp-card-bg);\r\n  margin: 0 auto 6px;\r\n}\r\n\r\n.gsgp-person-img-placeholder {\r\n  background-image: linear-gradient(\r\n    135deg,\r\n    var(--gsgp-card-bg) 0%,\r\n    var(--gsgp-border) 50%,\r\n    var(--gsgp-card-bg) 100%\r\n  );\r\n  background-position: center;\r\n  background-repeat: no-repeat;\r\n  background-size: 100% 100%;\r\n}\r\n\r\n.gsgp-person-name {\r\n  font-weight: 600;\r\n}\r\n\r\n.gsgp-person-subtitle {\r\n  color: var(--gsgp-text);\r\n  opacity: 0.75;\r\n}");
 
     /** À appeler une fois au démarrage du service worker, après lecture du storage. */
     function setTmdbToken(token) {
@@ -86,6 +107,14 @@
     containerEl.id = "gsgpContainer";
     containerEl.style.display = "block";
 
+    // --- Container to handle toggling block/flex  ----
+    const flexBlockEl = document.createElement("div");
+    flexBlockEl.id = "gsgpFlexBlock";
+
+    const aboutEl = document.createElement("div");
+    aboutEl.id = "gsgpAbout";
+    aboutEl.style.display = "block";
+
     // --- Main panel ---
     const panelEl = document.createElement("div");
     panelEl.id = "gsgpPanel";
@@ -108,7 +137,7 @@
     const officialSiteRow = document.createElement("div");
     officialSiteRow.className = "gsgp-link-row";
     officialSiteRow.id = "gsgpOfficialSiteRow";
-    officialSiteRow.style.display = "none";
+    officialSiteRow.style.visibility = "hidden";
 
     const officialSiteLink = document.createElement("a");
     officialSiteLink.className = "gsgp-btn-link";
@@ -128,7 +157,7 @@
     const abstractUrlRow = document.createElement("div");
     abstractUrlRow.className = "gsgp-link-row";
     abstractUrlRow.id = "gsgpAbstractUrlRow";
-    abstractUrlRow.style.display = "none";
+    abstractUrlRow.style.visibility = 'hidden';
 
     const abstractUrlLink = document.createElement("a");
     abstractUrlLink.className = "gsgp-btn-link";
@@ -154,15 +183,22 @@
     sourceLine.className = "gsgp-source";
     sourceLine.id = "gsgpSourceLine";
 
+    aboutEl.append(
+      headingEl,
+      imageEl,
+    );
+
+    flexBlockEl.append(
+      aboutEl,
+      mapEl
+    );
 
     // --- About Panel ---
     panelEl.append(
-      headingEl,
-      imageEl,
+      flexBlockEl,
       abstractEl,
       officialSiteRow,
       abstractUrlRow,
-      mapEl,
       sourceLine
     );
 
@@ -186,6 +222,25 @@
     movieSourceLine.id = "gsgpMovieSourceLine";
 
 
+    // --- Images panel ---
+    const imagesPanelEl = document.createElement("div");
+    imagesPanelEl.className = "gsgp-movie-panel";
+    imagesPanelEl.id = "gsgpImagesPanel";
+    imagesPanelEl.style.display = "none";
+
+    const imagesHeadingEl = document.createElement("h2");
+    imagesHeadingEl.className = "gsgp-movie-heading";
+    imagesHeadingEl.id = "gsgpImagesHeading";
+
+    const imagesGridEl = document.createElement("div");
+    imagesGridEl.className = "gsgp-images-grid";
+    imagesGridEl.id = "gsgpImagesCastGrid";
+
+    const imagesSourceLine = document.createElement("div");
+    imagesSourceLine.className = "gsgp-source";
+    imagesSourceLine.id = "gsgpImagesSourceLine";
+
+
 
     moviePanelEl.append(
       movieHeadingEl,
@@ -193,10 +248,17 @@
       movieSourceLine
     );
 
+    imagesPanelEl.append(
+      imagesHeadingEl,
+      imagesGridEl,
+      imagesSourceLine
+    );
+
     containerEl.append(
       emptyEl,
       panelEl,
-      moviePanelEl
+      moviePanelEl,
+      imagesPanelEl
     );
 
     rootEl.append(
@@ -215,17 +277,17 @@
     abstractUrlLabel.textContent = chrome.i18n.getMessage("sidePanelWikipediaLink");
     movieSourceLine.textContent = chrome.i18n.getMessage("sidePanelSourceTmdb");
 
-    function buildOsmEmbedUrl(lat, lon, zoomDelta = 0.02) {
+    function buildOsmEmbedUrl(lat, lon, zoomDelta, theme) {
         const bbox = [lon - zoomDelta, lat - zoomDelta, lon + zoomDelta, lat + zoomDelta].join(",");
         const marker = `${lat},${lon}`;
-        return constants.osmUrlTemplate`${bbox}${marker}`;
+        return constants.osmUrlTemplate`${bbox}${marker}${theme}`;
     }
 
     function buildGoogleSearchUrl(query) {
         return constants.googleSearchUrlTempate`${query}`
     }
 
-    function render(about, query) {
+    function render(about, query, theme) {
       titleEl.style.display = "block";
 
       if (!about) {
@@ -247,24 +309,29 @@
       abstractEl.textContent = about.abstract || "";
 
       if (about.coordinates) {
-        mapEl.src = buildOsmEmbedUrl(about.coordinates.lat, about.coordinates.lon);
+        mapEl.src = buildOsmEmbedUrl(
+          about.coordinates.lat,
+          about.coordinates.lon,
+          constants.OSM_ZOOM_DELTA,
+          theme
+        );
         mapEl.style.display = "block";
       } else {
         mapEl.style.display = "none";
       }
 
       if (about.officialSite) {
-        officialSiteRow.style.display = "block";
+        officialSiteRow.style.visibility = "visible";
         officialSiteLink.href = about.officialSite;
       } else {
-        officialSiteRow.style.display = "none";
+        officialSiteRow.style.visibility = "hidden";
       }
 
       if (about.abstractUrl) {
-        abstractUrlRow.style.display = "block";
+        abstractUrlRow.style.visibility = "visible";
         abstractUrlLink.href = about.abstractUrl;
       } else {
-        abstractUrlRow.style.display = "none";
+        abstractUrlRow.style.visibility = "hidden";
       }
 
       sourceLine.textContent = about.abstractSource
@@ -364,6 +431,88 @@
       return true;
     }
 
+
+
+    function imageCard(author, subtitle, thumbnailSrc, imgSrc) {
+      const card = document.createElement("a");
+      card.className = "gsgp-person-card";
+
+      card.href = imgSrc;
+      card.target = "_blank";
+      card.rel = "noopener";
+
+      const img = document.createElement("img");
+      img.className = "gsgp-person-img";
+      if (thumbnailSrc) {
+        img.src = thumbnailSrc;
+        card.appendChild(img);
+      } else {
+        const placeholder = document.createElement("div");
+        placeholder.className = "gsgp-person-img gsgp-person-img-placeholder";
+        card.appendChild(placeholder);
+      }
+
+      const nameEl = document.createElement("div");
+      nameEl.className = "gsgp-person-subtitle";
+      nameEl.innerHTML = author;
+      card.appendChild(nameEl);
+
+      const subtitleEl = document.createElement("div");
+      subtitleEl.className = "gsgp-person-subtitle";
+      subtitleEl.textContent = subtitle || "";
+      card.appendChild(subtitleEl);
+
+      return card;
+    }
+
+    function renderImagesGrid(container, cardConfigs) {
+      container.innerHTML = "";
+
+      const visibleConfigs = cardConfigs.slice(0, constants.IMAGES_COUNT);
+      const restConfigs = cardConfigs.slice(constants.IMAGES_COUNT, constants.MAX_IMAGES_COUNT);
+
+      visibleConfigs.forEach((cfg) => container.appendChild(imageCard(...cfg)));
+
+      if (restConfigs.length === 0) return;
+
+      const moreBtn = document.createElement("button");
+      moreBtn.type = "button";
+      moreBtn.className = "gsgp-more-btn";
+      moreBtn.textContent = chrome.i18n.getMessage("sidePanelShowMore", [String(restConfigs.length)]);
+      moreBtn.addEventListener("click", () => {
+        restConfigs.forEach((cfg) => {
+            container.insertBefore(
+                imageCard(...cfg),
+                moreBtn
+            );
+        });
+        moreBtn.remove();
+      });
+      container.appendChild(moreBtn);
+    }
+
+    function renderImages(imagesData) {
+      if (!imagesData) {
+        imagesPanelEl.style.display = "none";
+        return false;
+      }
+      imagesPanelEl.style.display = "block";
+      console.log(chrome.i18n.getMessage(
+        "sidePanelImagesHeading",
+        [imagesData.tag]
+      ));
+      imagesHeadingEl.textContent = chrome.i18n.getMessage(
+        "sidePanelImagesHeading",
+        [imagesData.tag]
+      );
+      const {images, count, tag} = imagesData;
+      const configs = images.map((i) => [`©${i.author}`, `license: cc-${i.license}`, i.thumbnailUrl, i.imageUrl]);
+      
+      renderImagesGrid(imagesGridEl, configs);
+
+      return true;
+    }
+
     /**
      * content-script.js
      * Chargé sur https://www.google.com/search*
@@ -375,6 +524,13 @@
 
     const uiLanguage = chrome.i18n.getUILanguage() || "en-US";
     const wikipediaLang = uiLanguage.split("-")[0] || "en";
+    let theme;
+    const darkModeMql = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)');
+    if (darkModeMql && darkModeMql.matches) {
+      theme = 'dark';
+    } else {
+      theme = 'light';
+    }
 
     let lastUrl = window.location.href;
 
@@ -400,6 +556,7 @@
             showData(
               response.about,
               response.movie,
+              response.images,
               query
             );
           }
@@ -413,10 +570,14 @@
 
     function onLayoutChange(rsoBlock, centerCol, rootEl, e) {
       if (!e.matches) {
-        rsoBlock.prepend(rootEl);
+        rsoBlock.prepend(
+          rootEl
+        );
       }
       else {
-        centerCol.append(rootEl);
+        centerCol.append(
+          rootEl
+        );
       }
     }
 
@@ -490,11 +651,14 @@
 
 
 
-    function showData(aboutData, movieData, query) {
-      const hasAbout = render(aboutData, query);
+    function showData(aboutData, movieData, imagesData, query) {
+      const rsoBlock = document.querySelector("#rso");
+      const hasAbout = render(aboutData, query, theme);
       const hasMovie = renderMovie(movieData);
+      const hasImages = renderImages(imagesData);
+      
 
-      if (!hasAbout && !hasMovie) {
+      if (!hasAbout && !hasMovie && !hasImages) {
         setEmptyState();
         return;
       }
@@ -506,13 +670,23 @@
         const title = titleEl.cloneNode(true);
         moviePanelEl.prepend(title);
 
-        containerEl.style.display = "flex";
-        containerEl.style.flexFlow = "row";
-
+        // containerEl.style.display = "flex";
+        // containerEl.style.flexFlow = "row";
         rsoBlock
           .querySelector(":scope > :nth-child(3)")
           .after(
             moviePanelEl
+          );
+      }
+
+      if (hasImages) {
+        const title = titleEl.cloneNode(true);
+        imagesPanelEl.prepend(title);
+
+        rsoBlock
+          .querySelector(":scope > :nth-child(6)")
+          .after(
+            imagesPanelEl
           );
       }
     }

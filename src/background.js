@@ -60,6 +60,7 @@
 
 import * as about from "./getAbout.js"
 import * as movie from "./getMovie.js"
+import * as openVerse from "./getOpenVerse.js"
 
 chrome.storage.local.set({ tmdbBearerToken: "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI0M2ViNjUzYTk0MTlkYmU4NWI5M2ViMmMzYmFlNmM5NiIsIm5iZiI6MTc4NTcxOTA4OS45NjYsInN1YiI6IjZhNmZlOTMxNTU1NDJkMDg4YTNjNmJlOSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.f-A_ZdXVigPYJ4p3z2Qp62yQrkXqv8ScwxEP_bigKzY" });
 
@@ -161,7 +162,6 @@ function updateIcon() {
 // "Allow AI Overviews" in the modal. Just flip the toggle; storage.onChanged
 // above takes care of everything else (ruleset, icon, arming the strip).
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  console.log("receive message", message)
   if (message && message.type === "blockAi:disable") {
     chrome.storage.sync.set(
       {
@@ -175,7 +175,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
   else if (message.type === "SEARCH_QUERY_DETECTED") {
     (async () => {
-      const [aboutResult, movieResult] = await Promise.allSettled([
+      const [
+        aboutResult,
+        movieResult,
+        imagesResult
+      ] = await Promise.allSettled([
         about.buildAboutPanel(
           message.query,
           {
@@ -188,7 +192,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             lang: message.lang,
             minPopularity : - 1
           }
-        )
+        ),
+        openVerse.buildImagesPanel(
+          message.query,
+          {
+            lang: message.lang,
+            minPopularity : - 1
+          }
+        ),
       ]);
 
       const aboutData = aboutResult.status === "fulfilled" ? aboutResult.value : null;
@@ -203,15 +214,23 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         return;
       }
 
-      const error = chrome.runtime.lastError;
-      if (error)
-        console.log('runtime lastError', error.message)
+      const imagesData = imagesResult.status === "fulfilled" ? imagesResult.value : null;
+      if (imagesResult.status === "rejected") {
+        console.error("[content-script] resolveMovieEntity failed", imagesResult.reason);
+        return;
+      }
 
+      // const error = chrome.runtime.lastError;
+      // if (error)
+      //   console.log('runtime lastError', error.message)
+      console.log(imagesData)
       sendResponse(
         {
           type: "DATA_AVAILABLE",
           about : aboutData,
-          movie : movieData
+          movie : movieData,
+          images : imagesData,
+          query : message.query
         }
       );
     })()

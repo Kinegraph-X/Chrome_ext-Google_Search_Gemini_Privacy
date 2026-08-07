@@ -40,14 +40,35 @@ const constants = {
     // Nominatim/Wikipedia n'ont pas ce problème.
     TMDB_NOISE_WORDS : /\b(film|movie|casting|cast)\b/gi,
     TMDB_MIN_POPULARITY : 5,
-    MOVIE_THUMB_COUNT : 12,
+    MOVIE_THUMB_COUNT : 9,
 
-    osmUrlTemplate : (str, bbox, marker) => {
-        return `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&marker=${marker}&layer=mapnik`
+    osmUrlTemplate : (str, bbox, marker, theme) => {
+        return `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&marker=${marker}&theme=${theme}`   // &layer=mapnik
     },
+    OSM_ZOOM_DELTA : 2,
     googleSearchUrlTempate : (str, query) => {
         return `https://www.google.com/search?q=${encodeURIComponent(query)}`;
-    }
+    },
+
+    // curl --header "Content-Type: application/json" --request POST --data '{"name" : "name", "description" : "thematic image research", "email": "mail@mail.com"}' https://api.openverse.org/v1/auth_tokens/register/
+    openVerseRegistration : {
+        // [Redacted]
+        // "name":"name",
+        // "msg":"Check your email for a verification link."
+    },
+    // curl --header "Content-Type: application/x-www-form-urlencoded" --request POST --data 'client_id=<client_id>>&client_secret=<client_secret>&grant_type=client_credentials' https://api.openverse.org/v1/auth_tokens/token/
+    openVerseToken : {
+        "access_token":"blGO9qXHLNIN6XbFVyDTsXPUJtV6pJ",
+        "expires_in":43200,
+        "token_type":"Bearer",
+        "scope":"read write"
+    },
+    openVerseUrl : `https://api.openverse.org/v1/images?`,
+    openVerseLicense : "cc0,by,by-sa",
+    openVerseLimit : "10",
+    openVerseMinScore : 0.25,
+    IMAGES_COUNT : 4,
+    MAX_IMAGES_COUNT : 16
 }
 
 export default constants

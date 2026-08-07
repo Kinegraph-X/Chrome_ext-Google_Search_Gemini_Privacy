@@ -6,7 +6,7 @@ import * as utils from "./aboutUtils.js"
 
 
 // --- 1. Nominatim : tente de résoudre la query comme un lieu ---
-async function fetchNominatim(query) {
+async function fetchNominatim(query, lang) {
     await utils.throttleNominatim();
     const params = new URLSearchParams({
         q: query,
@@ -19,7 +19,11 @@ async function fetchNominatim(query) {
     
     const url = constants.nominatimUrl + params.toString();
     const res = await fetch(url, {
-        headers: { "User-Agent": constants.ABOUT_BUILDER_UA, Accept: "application/json" },
+        headers: {
+            "User-Agent": constants.ABOUT_BUILDER_UA,
+            Accept: "application/json",
+            "Accept-Language": lang
+        },
     });
     
     if (!res.ok) return null;
@@ -94,7 +98,7 @@ export async function buildAboutPanel(query, opts = {}) {
     let place = null;
     let wikidataEntity = null;
     try {
-        place = await fetchNominatim(query);
+        place = await fetchNominatim(query, opts.lang);
         console.log("place", place)
         if (!utils.isPlaceNotable(place)) {
             place = null;
@@ -116,12 +120,12 @@ export async function buildAboutPanel(query, opts = {}) {
     // sinon on résout le titre exact via l'endpoint de recherche (gère la
     // désambiguation, ex: query "L'Odyssée film" -> "L'Odyssée (film, 2016)").
     let wikiTitle = null;
-    let wikiLang = lang;
+    let wikiLang = opts.lang;
     const wikipediaTag = place?.extratags?.wikipedia;
     console.log("wikipediaTag", wikipediaTag)
     if (wikipediaTag && wikipediaTag.includes(":")) {
         const [tagLang, ...rest] = wikipediaTag.split(":");
-        wikiLang = tagLang;
+        // wikiLang = tagLang;
         wikiTitle = rest.join(":");
         console.log("wikipediaTag wikiTitle", wikiTitle)
     } else {
