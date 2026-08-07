@@ -41,7 +41,7 @@
         // Nominatim/Wikipedia n'ont pas ce problème.
         TMDB_NOISE_WORDS : /\b(film|movie|casting|cast)\b/gi,
         TMDB_MIN_POPULARITY : 5,
-        MOVIE_THUMB_COUNT : 9,
+        MOVIE_THUMB_COUNT : 8,
 
         osmUrlTemplate : (str, bbox, marker, theme) => {
             return `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&marker=${marker}&theme=${theme}`   // &layer=mapnik
