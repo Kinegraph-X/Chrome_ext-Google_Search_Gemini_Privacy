@@ -70,6 +70,10 @@
          "title": { "content": "$1", "example": "Inception" }
       }
    },
+   "sidePanelImagesSource": {
+      "description": "Source for the image panel",
+      "message": "Source: OpenVerse.org"
+   },
    "sidePanelShowMore": {
       "description": "Button to reveal the remaining cast/filmography entries",
       "message": "Show more ($COUNT$)",

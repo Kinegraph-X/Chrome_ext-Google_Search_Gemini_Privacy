@@ -140,6 +140,7 @@
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 12px;
+  margin-bottom : 8px;
 }
 
 #search .gsgp-images-grid {
@@ -159,6 +160,7 @@
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 12px;
+  margin-bottom : 8px;
 }
 
 #search .gsgp-cast-grid {

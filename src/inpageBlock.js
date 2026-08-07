@@ -192,3 +192,4 @@ titleEl.textContent = chrome.i18n.getMessage("appName");
 officialSiteLabel.textContent = chrome.i18n.getMessage("sidePanelOfficialSite");
 abstractUrlLabel.textContent = chrome.i18n.getMessage("sidePanelWikipediaLink");
 movieSourceLine.textContent = chrome.i18n.getMessage("sidePanelSourceTmdb");
+imagesSourceLine.textContent = chrome.i18n.getMessage("sidePanelImagesSource");
