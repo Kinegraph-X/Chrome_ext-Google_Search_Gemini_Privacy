@@ -95,6 +95,7 @@ export async function buildAboutPanel(query, opts = {}) {
     let wikidataEntity = null;
     try {
         place = await fetchNominatim(query);
+        console.log("place", place)
         if (!utils.isPlaceNotable(place)) {
             place = null;
         }
@@ -117,18 +118,22 @@ export async function buildAboutPanel(query, opts = {}) {
     let wikiTitle = null;
     let wikiLang = lang;
     const wikipediaTag = place?.extratags?.wikipedia;
+    console.log("wikipediaTag", wikipediaTag)
     if (wikipediaTag && wikipediaTag.includes(":")) {
         const [tagLang, ...rest] = wikipediaTag.split(":");
         wikiLang = tagLang;
         wikiTitle = rest.join(":");
+        console.log("wikipediaTag wikiTitle", wikiTitle)
     } else {
         try {
             wikiTitle = await resolveWikipediaTitle(query, wikiLang);
+            console.log("resolved wikiTitle", wikiTitle)
         } catch (e) {
             console.warn("[about-builder] Wikipedia search error", e);
         }
         // Filet de sécurité si la recherche échoue ou ne renvoie rien.
         if (!wikiTitle) {
+            console.log("from_place wikiTitle", wikiTitle)
             wikiTitle =
                 place?.namedetails?.name || place?.display_name?.split(",")[0] || query;
         }

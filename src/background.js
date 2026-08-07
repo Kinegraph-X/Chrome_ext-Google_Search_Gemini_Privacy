@@ -58,7 +58,8 @@
  * - Pousse le résultat au side panel ouvert
  */
 
-
+import * as about from "./getAbout.js"
+import * as movie from "./getMovie.js"
 
 chrome.storage.local.set({ tmdbBearerToken: "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI0M2ViNjUzYTk0MTlkYmU4NWI5M2ViMmMzYmFlNmM5NiIsIm5iZiI6MTc4NTcxOTA4OS45NjYsInN1YiI6IjZhNmZlOTMxNTU1NDJkMDg4YTNjNmJlOSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.f-A_ZdXVigPYJ4p3z2Qp62yQrkXqv8ScwxEP_bigKzY" });
 
@@ -160,6 +161,7 @@ function updateIcon() {
 // "Allow AI Overviews" in the modal. Just flip the toggle; storage.onChanged
 // above takes care of everything else (ruleset, icon, arming the strip).
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  console.log("receive message", message)
   if (message && message.type === "blockAi:disable") {
     chrome.storage.sync.set(
       {
@@ -170,6 +172,66 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       }
     );
     return true; // keep the channel open for the async sendResponse
+  }
+  else if (message.type === "SEARCH_QUERY_DETECTED") {
+    (async () => {
+      const [aboutResult, movieResult] = await Promise.allSettled([
+        about.buildAboutPanel(
+          message.query,
+          {
+            lang: message.lang
+          }
+        ),
+        movie.resolveMovieEntity(
+          message.query,
+          {
+            lang: message.lang,
+            minPopularity : - 1
+          }
+        )
+      ]);
+
+      const aboutData = aboutResult.status === "fulfilled" ? aboutResult.value : null;
+      if (aboutResult.status === "rejected") {
+        console.error("[content-script] buildAboutPanel failed", aboutResult.reason);
+        return;
+      }
+
+      const movieData = movieResult.status === "fulfilled" ? movieResult.value : null;
+      if (movieResult.status === "rejected") {
+        console.error("[content-script] resolveMovieEntity failed", movieResult.reason);
+        return;
+      }
+
+      const error = chrome.runtime.lastError;
+      if (error)
+        console.log('runtime lastError', error.message)
+
+      sendResponse(
+        {
+          type: "DATA_AVAILABLE",
+          about : aboutData,
+          movie : movieData
+        }
+      );
+      // chrome.tabs.sendMessage(
+      //   sender.tab.id,
+      //   {
+      //     type: "DATA_AVAILABLE",
+      //     about : aboutData,
+      //     movie : movieData
+      //   }
+      // );
+      // chrome.runtime.sendMessage(
+      //   {
+      //     type: "DATA_AVAILABLE",
+      //     about : aboutData,
+      //     movie : movieData
+      //   }
+      // );
+    })()
+
+    return true;
   }
   return false;
 });

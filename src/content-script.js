@@ -26,10 +26,16 @@ const uiLanguage = chrome.i18n.getUILanguage() || "en-US";
 const wikipediaLang = uiLanguage.split("-")[0] || "en";
 const tmdbLang = uiLanguage;
 
-let aboutData;
-let movieData;
-
 let lastUrl = window.location.href;
+
+
+// chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+//   console.log("receive message")
+//   if (message.type === "DATA_AVAILABLE") {
+//     showData(message.about, message.movie)
+//   }
+// });
+
 
 function getSearchQuery() {
   const params = new URLSearchParams(window.location.search);
@@ -38,36 +44,58 @@ function getSearchQuery() {
 
 async function sendQuery(query) {
   if (!query) return;
-  const [aboutResult, movieResult] = await Promise.allSettled([
-    about.buildAboutPanel(
-      query,
-      {
-        lang: wikipediaLang
-      }
-    ),
-    movie.resolveMovieEntity(
-      query,
-      {
-        lang: wikipediaLang,
-        minPopularity : - 1
-      }
-    )
-  ]);
+  // const [aboutResult, movieResult] = await Promise.allSettled([
+  //   about.buildAboutPanel(
+  //     query,
+  //     {
+  //       lang: wikipediaLang
+  //     }
+  //   ),
+  //   movie.resolveMovieEntity(
+  //     query,
+  //     {
+  //       lang: wikipediaLang,
+  //       minPopularity : - 1
+  //     }
+  //   )
+  // ]);
 
-  aboutData = aboutResult.status === "fulfilled" ? aboutResult.value : null;
-  if (aboutResult.status === "rejected") {
-    console.error("[content-script] buildAboutPanel failed", aboutResult.reason);
-    return;
-  }
+  // aboutData = aboutResult.status === "fulfilled" ? aboutResult.value : null;
+  // if (aboutResult.status === "rejected") {
+  //   console.error("[content-script] buildAboutPanel failed", aboutResult.reason);
+  //   return;
+  // }
 
-  movieData = movieResult.status === "fulfilled" ? movieResult.value : null;
-  if (movieResult.status === "rejected") {
-    console.error("[content-script] resolveMovieEntity failed", movieResult.reason);
-    return;
-  }
+  // movieData = movieResult.status === "fulfilled" ? movieResult.value : null;
+  // if (movieResult.status === "rejected") {
+  //   console.error("[content-script] resolveMovieEntity failed", movieResult.reason);
+  //   return;
+  // }
+  chrome.runtime.sendMessage(
+    {
+      type: "SEARCH_QUERY_DETECTED",
+      query : query,
+      lang : wikipediaLang,
+      url: window.location.href,
+    },
+    (response) => {
+      const error = chrome.runtime.lastError;
+      if (error)
+        console.log('runtime lastError', error.message)
+      if (response.type === "DATA_AVAILABLE") {
+        showData(
+          response.about,
+          response.movie,
+          query
+        )
+      }
+    }
+  );
 
   return true;
 }
+
+
 
 function onLayoutChange(rsoBlock, centerCol, rootEl, e) {
   if (!e.matches) {
@@ -134,10 +162,44 @@ async function init() {
   }
 
   if (!(await sendQuery(query))) {
-    console.error("API failure: see above");
+    // console.error("API failure: see above");
     return;
   }
 
+  // const hasAbout = render(aboutData, query);
+  // const hasMovie = renderMovie(movieData, query);
+
+  // if (!hasAbout && !hasMovie) {
+  //   setEmptyState();
+  //   return;
+  // }
+
+  // setSuccessState();
+
+  // // --- Movie infos are in-between Google results ---
+  // if (hasMovie) {
+  //   const title = titleEl.cloneNode(true);
+  //   moviePanelEl.prepend(title)
+
+  //   containerEl.style.display = "flex";
+  //   containerEl.style.flexFlow = "row";
+
+  //   rsoBlock
+  //     .querySelector(":scope > :nth-child(3)")
+  //     .after(
+  //       moviePanelEl
+  //     );
+  // }
+
+  // --- Responsiveness ---
+  if (!resizeListenerInstalled) {
+    const mq = window.matchMedia(`(min-width: ${constants.GGOGLE_RESPONSIVE_BREAKPOINT}px)`);
+    mq.addEventListener("change", onLayoutChange.bind(null, rsoBlock, centerCol, rootEl));
+    resizeListenerInstalled = true;
+  }
+}
+
+function showData(aboutData, movieData, query) {
   const hasAbout = render(aboutData, query);
   const hasMovie = renderMovie(movieData, query);
 
@@ -161,13 +223,6 @@ async function init() {
       .after(
         moviePanelEl
       );
-  }
-
-  // --- Responsiveness ---
-  if (!resizeListenerInstalled) {
-    const mq = window.matchMedia(`(min-width: ${constants.GGOGLE_RESPONSIVE_BREAKPOINT}px)`);
-    mq.addEventListener("change", onLayoutChange.bind(null, rsoBlock, centerCol, rootEl));
-    resizeListenerInstalled = true;
   }
 }
 
