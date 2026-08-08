@@ -1163,34 +1163,6 @@
           query : query,
           lang : wikipediaLang,
           url: window.location.href,
-        },
-        (response) => {
-          // const error = chrome.runtime.lastError;
-          // if (error) {
-          //   console.log('runtime lastError', error.message)
-          //   return;
-          // }
-          // if (response.type === "DATA_AVAILABLE") {
-          //   // handle race condition when request succeeds besore DmContenLoaded
-          //   const task = () => {
-          //     setSearchingState();
-          //     showData(
-          //       message.subType,
-          //       message.payload,
-          //       query
-          //     );
-          //   }
-          //   console.log(initialized, response, task)
-          //   if (initialized)
-          //     task();
-          //   else
-          //     pendingTasks.push(task);
-          // }
-          // else if (response.type === "API_ERROR") {
-          //   response.msgs.forEach((msg) => {
-          //     console.error(msg);
-          //   });
-          // }
         }
       );
 

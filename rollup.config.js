@@ -9,8 +9,7 @@ const commonPlugins = [
     entries: [
       { find: 'src', replacement: fileURLToPath(new URL("./src", import.meta.url))}
     ]
-  }),
-  css()
+  })
 ];
 
 export default [
@@ -33,6 +32,7 @@ export default [
     },
     plugins: [
       ...commonPlugins,
+      css(),
       copy({
         targets: [
           { src: "src/manifest.json", dest: "dist" },

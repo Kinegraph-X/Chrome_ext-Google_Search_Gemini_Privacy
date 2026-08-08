@@ -49,7 +49,7 @@
 // RuleCondition reference — hence the use of session rules here
 // specifically. DNR has no built-in "one-shot" rule concept, so the
 // add/remove lifecycle of that session rule is managed by hand.
-
+ 
 /**
  * Additional feature
  *
@@ -57,11 +57,7 @@
  * - Appelle about-builder.js pour construire le panel
  * - Pousse le résultat au side panel ouvert
  */
-
 import * as utils from "src/backgroundUtils.js"
-import {buildAboutPanel} from "src/getAbout.js"
-import {resolveMovieEntity} from "src/getMovie.js"
-import {buildImagesPanel} from "src/getOpenVerse.js"
 import tasks from "src/tasks.js"
 
 chrome.storage.local.set({ tmdbBearerToken: "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI0M2ViNjUzYTk0MTlkYmU4NWI5M2ViMmMzYmFlNmM5NiIsIm5iZiI6MTc4NTcxOTA4OS45NjYsInN1YiI6IjZhNmZlOTMxNTU1NDJkMDg4YTNjNmJlOSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.f-A_ZdXVigPYJ4p3z2Qp62yQrkXqv8ScwxEP_bigKzY" });
@@ -204,7 +200,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       }
     })();
     if (successes !== Object.keys(tasks).length) {
-      // console.error('API error, see above');
       chrome.tabs.sendMessage(sender.tab.id, 
         {
           type : 'API_ERROR',
