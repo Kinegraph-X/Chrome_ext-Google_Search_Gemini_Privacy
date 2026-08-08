@@ -1,0 +1,233 @@
+:root {
+  --panel-width: 421px;
+  --gsgp-text: #202124;
+  --gsgp-text-muted: #5f6368;
+  --gsgp-bg: #ffffff;
+  --gsgp-border: #e8eaed;
+  --gsgp-accent: #1a73e8;
+  --gsgp-accent-text: #ffffff;
+  --gsgp-card-bg: #f1f3f4;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --gsgp-text: #e8eaed;
+    --gsgp-text-muted: #9aa0a6;
+    --gsgp-bg: #22242a;
+    --gsgp-border: #3c4043;
+    --gsgp-accent: #8ab4f8;
+    --gsgp-accent-text: #202124;
+    --gsgp-card-bg: #303134;
+  }
+}
+
+.gsgp-root {
+  display : block;
+  font-family: -apple-system, system-ui, sans-serif;
+  min-width : var(--panel-width);
+  margin: 0;
+  padding: 16px;
+  color: var(--gsgp-text);
+  background: var(--gsgp-bg);
+  box-sizing: border-box;
+}
+
+.gsgp-root *,
+.gsgp-root *::before,
+.gsgp-root *::after {
+  box-sizing: inherit;
+}
+
+#gsgpFlexBlock {
+  display : block;
+}
+
+#search #gsgpFlexBlock {
+  display : flex;
+  flex-flow : row;
+}
+
+#search #gsgpAbout {
+  width : 278px;
+  padding : 0px
+}
+
+#search .gsgp-map {
+  max-width : 327px;
+  margin: 30px 12px 12px;
+}
+
+.gsgp-empty {
+  color: var(--gsgp-text-muted);
+  font-size: 12px;
+}
+
+#gsgpPageTitle {
+  color : var(--gsgp-text-muted);
+  font-size : 13px;
+  margin-bottom : 21px;
+}
+
+.gsgp-heading {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0 0 8px;
+}
+
+.gsgp-image {
+  display: none;
+  width: 100%;
+  max-height: 260px;
+  object-fit: contain;
+  background: var(--gsgp-card-bg);
+  border-radius: 8px;
+  margin-bottom: 12px;
+}
+
+.gsgp-abstract {
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.gsgp-map {
+  width: 100%;
+  height: 220px;
+  border: 0;
+  border-radius: 8px;
+  display: none;
+  margin-bottom: 12px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .gsgp-map {
+    filter: invert(100%) hue-rotate(180deg) saturate(50%) brightness(210%) contrast(90%);
+  }
+}
+
+.gsgp-link-row {
+  margin: 8px 8px 16px 0px;
+}
+
+
+#gsgpAbstractUrlRow, #gsgpOfficialSiteRow {
+  display : inline-block;
+}
+
+.gsgp-btn-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: var(--gsgp-accent);
+  color: var(--gsgp-accent-text);
+  border-radius: 999px;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  transition: opacity 0.15s ease;
+}
+
+.gsgp-btn-link:hover {
+  opacity: 0.85;
+}
+
+.gsgp-source {
+  font-size: 11px;
+  color: var(--gsgp-text-muted);
+}
+
+.gsgp-images-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom : 8px;
+}
+
+#search .gsgp-images-grid {
+    grid-template-columns: repeat(4, 1fr);
+}
+
+.gsgp-movie-panel {
+  padding-bottom : 21px;
+}
+
+.gsgp-movie-heading {
+  font-size: 16px;
+  margin: 0 0 10px;
+}
+
+.gsgp-cast-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom : 8px;
+}
+
+#search .gsgp-cast-grid {
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.gsgp-person-card {
+  text-align: center;
+  font-size: 12px;
+  display: block;
+  color: inherit;
+  text-decoration: none;
+  max-width: 131px;
+  border-radius: 8px;
+  padding: 4px;
+  transition: background 0.15s ease;
+}
+
+a.gsgp-person-card:hover {
+  background: var(--gsgp-card-bg);
+  cursor: pointer;
+}
+
+.gsgp-more-btn {
+  grid-column: 1 / -1;
+  padding: 8px;
+  background: transparent;
+  border: 1px solid var(--gsgp-border);
+  border-radius: 8px;
+  color: var(--gsgp-text);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.gsgp-more-btn:hover {
+  background: var(--gsgp-card-bg);
+}
+
+.gsgp-person-img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 13 / 16;
+  border-radius: 6px;
+  object-fit: cover;
+  background: var(--gsgp-card-bg);
+  margin: 0 auto 6px;
+}
+
+.gsgp-person-img-placeholder {
+  background-image: linear-gradient(
+    135deg,
+    var(--gsgp-card-bg) 0%,
+    var(--gsgp-border) 50%,
+    var(--gsgp-card-bg) 100%
+  );
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+}
+
+.gsgp-person-name {
+  font-weight: 600;
+}
+
+.gsgp-person-subtitle {
+  color: var(--gsgp-text);
+  opacity: 0.75;
+}

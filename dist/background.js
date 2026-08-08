@@ -253,6 +253,7 @@
             summary = await fetchWikipediaSummary(wikiTitle, wikiLang);
         } catch (e) {
             console.warn("[about-builder] Wikipedia error", e);
+            throw e;
         }
 
         if (!place && !summary) {
@@ -635,6 +636,24 @@
         return result;
     }
 
+    const tasks = {
+        about : {
+            fetcher : buildAboutPanel,
+            show : 'renderAbout',
+            minPopularity : -1
+        },
+        movie : {
+            fetcher : resolveMovieEntity,
+            show : 'renderMovie',
+            minPopularity : -1
+        },
+        images : {
+            fetcher : buildImagesPanel,
+            show : 'renderImages',
+            minPopularity : -1
+        },
+    };
+
     // background.js — Block AI Overview
     // Enables/disables a static declarativeNetRequest ruleset that redirects
     // fresh /search navigations (with no udm param) to udm=14, which suppresses
@@ -797,64 +816,42 @@
         return true; // keep the channel open for the async sendResponse
       }
       else if (message.type === "SEARCH_QUERY_DETECTED") {
+        let successes = 0;
+        let msgs = [];
         (async () => {
-          const [
-            aboutResult,
-            movieResult,
-            imagesResult
-          ] = await Promise.allSettled([
-            buildAboutPanel(
-              message.query,
-              {
-                lang: message.lang
-              }
-            ),
-            resolveMovieEntity(
-              message.query,
-              {
-                lang: message.lang,
-                minPopularity : -1
-              }
-            ),
-            buildImagesPanel(
-              message.query,
-              {
-                lang: message.lang}
-            ),
-          ]);
-
-          const aboutData = aboutResult.status === "fulfilled" ? aboutResult.value : null;
-          if (aboutResult.status === "rejected") {
-            console.error("[content-script] buildAboutPanel failed", aboutResult.reason);
-            return;
+          for (const name in tasks) {
+            const taskDesc = tasks[name];
+            try {
+              const res = await taskDesc.fetcher(
+                message.query,
+                {
+                  lang: message.lang,
+                  minPopularity : taskDesc.minPopularity
+                }
+              );
+              successes++;
+              chrome.tabs.sendMessage(sender.tab.id, {
+                type: "DATA_AVAILABLE",
+                subType: name,
+                res: res,
+                query: message.query
+              });
+            }
+            // Handles network erros, not 4xx/5xx
+            catch (e) {
+              msgs.push(e.msg);
+            }
           }
-
-          const movieData = movieResult.status === "fulfilled" ? movieResult.value : null;
-          if (movieResult.status === "rejected") {
-            console.error("[content-script] resolveMovieEntity failed", movieResult.reason);
-            return;
-          }
-
-          const imagesData = imagesResult.status === "fulfilled" ? imagesResult.value : null;
-          if (imagesResult.status === "rejected") {
-            console.error("[content-script] resolveMovieEntity failed", imagesResult.reason);
-            return;
-          }
-
-          // const error = chrome.runtime.lastError;
-          // if (error)
-          //   console.log('runtime lastError', error.message)
-          console.log(imagesData);
-          sendResponse(
+        })();
+        if (successes !== Object.keys(tasks).length) {
+          // console.error('API error, see above');
+          chrome.tabs.sendMessage(sender.tab.id, 
             {
-              type: "DATA_AVAILABLE",
-              about : aboutData,
-              movie : movieData,
-              images : imagesData,
-              query : message.query
+              type : 'API_ERROR',
+              msgs : msgs
             }
           );
-        })();
+        }
 
         return true;  // keep the channel open for the async sendResponse
       }

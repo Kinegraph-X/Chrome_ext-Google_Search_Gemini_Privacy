@@ -58,9 +58,11 @@
  * - Pousse le résultat au side panel ouvert
  */
 
-import * as about from "./getAbout.js"
-import * as movie from "./getMovie.js"
-import * as openVerse from "./getOpenVerse.js"
+import * as utils from "src/backgroundUtils.js"
+import {buildAboutPanel} from "src/getAbout.js"
+import {resolveMovieEntity} from "src/getMovie.js"
+import {buildImagesPanel} from "src/getOpenVerse.js"
+import tasks from "src/tasks.js"
 
 chrome.storage.local.set({ tmdbBearerToken: "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiI0M2ViNjUzYTk0MTlkYmU4NWI5M2ViMmMzYmFlNmM5NiIsIm5iZiI6MTc4NTcxOTA4OS45NjYsInN1YiI6IjZhNmZlOTMxNTU1NDJkMDg4YTNjNmJlOSIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.f-A_ZdXVigPYJ4p3z2Qp62yQrkXqv8ScwxEP_bigKzY" });
 
@@ -174,66 +176,42 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return true; // keep the channel open for the async sendResponse
   }
   else if (message.type === "SEARCH_QUERY_DETECTED") {
+    let successes = 0;
+    let msgs = [];
     (async () => {
-      const [
-        aboutResult,
-        movieResult,
-        imagesResult
-      ] = await Promise.allSettled([
-        about.buildAboutPanel(
-          message.query,
-          {
-            lang: message.lang
-          }
-        ),
-        movie.resolveMovieEntity(
-          message.query,
-          {
-            lang: message.lang,
-            minPopularity : - 1
-          }
-        ),
-        openVerse.buildImagesPanel(
-          message.query,
-          {
-            lang: message.lang,
-            minPopularity : - 1
-          }
-        ),
-      ]);
-
-      const aboutData = aboutResult.status === "fulfilled" ? aboutResult.value : null;
-      if (aboutResult.status === "rejected") {
-        console.error("[content-script] buildAboutPanel failed", aboutResult.reason);
-        return;
+      for (const name in tasks) {
+        const taskDesc = tasks[name];
+        try {
+          const res = await taskDesc.fetcher(
+            message.query,
+            {
+              lang: message.lang,
+              minPopularity : taskDesc.minPopularity
+            }
+          );
+          successes++;
+          chrome.tabs.sendMessage(sender.tab.id, {
+            type: "DATA_AVAILABLE",
+            subType: name,
+            res: res,
+            query: message.query
+          });
+        }
+        // Handles network erros, not 4xx/5xx
+        catch (e) {
+          msgs.push(e.msg);
+        }
       }
-
-      const movieData = movieResult.status === "fulfilled" ? movieResult.value : null;
-      if (movieResult.status === "rejected") {
-        console.error("[content-script] resolveMovieEntity failed", movieResult.reason);
-        return;
-      }
-
-      const imagesData = imagesResult.status === "fulfilled" ? imagesResult.value : null;
-      if (imagesResult.status === "rejected") {
-        console.error("[content-script] resolveMovieEntity failed", imagesResult.reason);
-        return;
-      }
-
-      // const error = chrome.runtime.lastError;
-      // if (error)
-      //   console.log('runtime lastError', error.message)
-      console.log(imagesData)
-      sendResponse(
+    })();
+    if (successes !== Object.keys(tasks).length) {
+      // console.error('API error, see above');
+      chrome.tabs.sendMessage(sender.tab.id, 
         {
-          type: "DATA_AVAILABLE",
-          about : aboutData,
-          movie : movieData,
-          images : imagesData,
-          query : message.query
+          type : 'API_ERROR',
+          msgs : msgs
         }
       );
-    })()
+    }
 
     return true;  // keep the channel open for the async sendResponse
   }

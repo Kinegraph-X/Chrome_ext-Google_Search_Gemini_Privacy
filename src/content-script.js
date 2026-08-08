@@ -6,10 +6,8 @@
  * au service worker. Ne modifie jamais le DOM de la page.
  */
 
-import constants from "./constants.js"
-import styles from './page_style.css' assert { type: 'css'};
-import * as about from "./getAbout.js"
-import * as movie from "./getMovie.js"
+import constants from "src/constants.js"
+import styles from 'src/page_style.css' assert { type: 'css'};
 import {
   fragment,
   containerEl,
@@ -21,12 +19,15 @@ import {
   moviePanelEl,
   imagesPanelEl,
   movieHeadingEl
-} from "./inpageBlock.js"
-import {
-  render,
-  renderMovie,
-  renderImages
-} from "./buildAboutPanel.js"
+} from "src/inpageBlock.js"
+import tasks from "src/tasks.js"
+// import {
+//   renderAbout,
+//   renderMovie,
+//   renderImages
+// } from "src/buildAboutPanel.js"
+
+import * as renderers from "src/buildAboutPanel.js"
 
 const uiLanguage = chrome.i18n.getUILanguage() || "en-US";
 const wikipediaLang = uiLanguage.split("-")[0] || "en";
@@ -39,12 +40,49 @@ if (darkModeMql && darkModeMql.matches) {
   theme = 'light'
 }
 
+let rsoBlock;
+let centerCol;
+let initialized = false;
+let resizeListenerInstalled = false;
+const pendingTasks = [];
+const maxMatches = Object.keys(tasks).length;
+let matchCount = 0;
+let requestCount = 0;
 let lastUrl = window.location.href;
 
 function getSearchQuery() {
   const params = new URLSearchParams(window.location.search);
   return params.get("q");
 }
+
+chrome.runtime.onMessage.addListener((response) => {
+  const error = chrome.runtime.lastError;
+  if (error) {
+    console.log('runtime lastError', error.message)
+    return;
+  }
+  if (response.type === "DATA_AVAILABLE") {
+    // handle race condition when request succeeds besore DmContenLoaded
+    const task = () => {
+      setSearchingState();
+      showData(
+        response.subType,
+        response.res,
+        response.query
+      );
+    }
+    console.log(initialized, response, task)
+    if (initialized)
+      task();
+    else
+      pendingTasks.push(task);
+  }
+  else if (response.type === "API_ERROR") {
+    response.msgs.forEach((msg) => {
+      console.error(msg);
+    });
+  }
+})
 
 async function sendQuery(query) {
   if (!query) return;
@@ -56,17 +94,32 @@ async function sendQuery(query) {
       url: window.location.href,
     },
     (response) => {
-      const error = chrome.runtime.lastError;
-      if (error)
-        console.log('runtime lastError', error.message)
-      if (response.type === "DATA_AVAILABLE") {
-        showData(
-          response.about,
-          response.movie,
-          response.images,
-          query
-        )
-      }
+      // const error = chrome.runtime.lastError;
+      // if (error) {
+      //   console.log('runtime lastError', error.message)
+      //   return;
+      // }
+      // if (response.type === "DATA_AVAILABLE") {
+      //   // handle race condition when request succeeds besore DmContenLoaded
+      //   const task = () => {
+      //     setSearchingState();
+      //     showData(
+      //       message.subType,
+      //       message.payload,
+      //       query
+      //     );
+      //   }
+      //   console.log(initialized, response, task)
+      //   if (initialized)
+      //     task();
+      //   else
+      //     pendingTasks.push(task);
+      // }
+      // else if (response.type === "API_ERROR") {
+      //   response.msgs.forEach((msg) => {
+      //     console.error(msg);
+      //   });
+      // }
     }
   );
 
@@ -75,7 +128,7 @@ async function sendQuery(query) {
 
 
 
-function onLayoutChange(rsoBlock, centerCol, rootEl, e) {
+function onLayoutChange(e) {
   if (!e.matches) {
     rsoBlock.prepend(
       rootEl
@@ -104,8 +157,6 @@ function setSuccessState() {
   titleEl.textContent = chrome.i18n.getMessage("sidePanelTitleSuccess");
 }
 
-let resizeListenerInstalled = false;
-
 async function init() {
   // navigation from BackForwardCache
   if (document.getElementById("gsgpRoot")) {
@@ -126,9 +177,6 @@ async function init() {
   // --- Inject extension stylesheet  ---
   document.adoptedStyleSheets.push(styles)
 
-  const centerCol = document.querySelector("#rcnt"); 
-  const rsoBlock = document.querySelector("#rso");
-  
   // --- Initial state ---
   if (window.innerWidth <= constants.GGOGLE_RESPONSIVE_BREAKPOINT) {
     rsoBlock.prepend(fragment);
@@ -144,36 +192,35 @@ async function init() {
   }
 
   if (!(await sendQuery(query))) {
-    // console.error("API failure: see above");
+    // What to log here ?
     return;
   }
 
   // --- Responsiveness ---
+  // resizeListenerInstalled Handles potential inconsistancy related to BFCache
   if (!resizeListenerInstalled) {
     const mq = window.matchMedia(`(min-width: ${constants.GGOGLE_RESPONSIVE_BREAKPOINT}px)`);
-    mq.addEventListener("change", onLayoutChange.bind(null, rsoBlock, centerCol, rootEl));
+    mq.addEventListener("change", onLayoutChange);
     resizeListenerInstalled = true;
   }
 }
 
 
 
-function showData(aboutData, movieData, imagesData, query) {
-  const rsoBlock = document.querySelector("#rso");
-  const hasAbout = render(aboutData, query, theme);
-  const hasMovie = renderMovie(movieData, query);
-  const hasImages = renderImages(imagesData);
-  
-
-  if (!hasAbout && !hasMovie && !hasImages) {
-    setEmptyState();
+function showData(subType, payload, query) {
+  console.log(self)
+  console.log(tasks[subType].show)
+  const result = renderers[tasks[subType].show](payload, query, theme);
+  if (hasNoResults(result))
     return;
-  }
-
+  
+  handlePageStructure(subType)
   setSuccessState();
+}
 
+function handlePageStructure(taskName) {
   // --- Movie infos are in-between Google results ---
-  if (hasMovie) {
+  if (taskName === 'movie') {
     const title = titleEl.cloneNode(true);
     moviePanelEl.prepend(title)
 
@@ -185,8 +232,7 @@ function showData(aboutData, movieData, imagesData, query) {
         moviePanelEl
       );
   }
-
-  if (hasImages) {
+  else if (taskName === 'images') {
     const title = titleEl.cloneNode(true);
     imagesPanelEl.prepend(title)
 
@@ -198,8 +244,29 @@ function showData(aboutData, movieData, imagesData, query) {
   }
 }
 
+function hasNoResults(isResult) {
+  if (isResult)
+    matchCount++
+  requestCount++
+  if (
+    requestCount === maxMatches &&
+    matchCount === 0
+  )
+    setEmptyState();
+}
+
 window.addEventListener("pageshow", (e) => {
   if (e.persisted === true) init();
 })
 
-document.addEventListener("DOMContentLoaded", init, { once: true });
+document.addEventListener("DOMContentLoaded", () => {
+    initialized = true;
+    rsoBlock = document.querySelector("#rso");
+    centerCol = document.querySelector("#rcnt"); 
+    init();
+    pendingTasks.forEach((task) => {
+      task();
+    })
+  },
+  { once: true }
+);
