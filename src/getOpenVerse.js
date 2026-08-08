@@ -1,8 +1,8 @@
 
 
 
-import  constants from "./constants.js"
-import * as utils from "./movieUtils.js"
+import  constants from "src/constants.js"
+import * as utils from "src/movieUtils.js"
 
 export async function fetchOpenVerse(query) {
     const url = constants.openVerseUrl;

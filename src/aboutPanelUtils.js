@@ -1,5 +1,5 @@
 
-import constants from "./constants.js"
+import constants from "src/constants.js"
 
 
 export function buildOsmEmbedUrl(lat, lon, zoomDelta, theme) {

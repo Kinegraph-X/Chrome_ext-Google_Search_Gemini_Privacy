@@ -1,7 +1,15 @@
+import alias from "@rollup/plugin-alias"
 import css from "rollup-plugin-import-css";
 import copy from "rollup-plugin-copy";
 
+import { fileURLToPath } from "url";
+
 const commonPlugins = [
+  alias({
+    entries: [
+      { find: 'src', replacement: fileURLToPath(new URL("./src", import.meta.url))}
+    ]
+  }),
   css()
 ];
 

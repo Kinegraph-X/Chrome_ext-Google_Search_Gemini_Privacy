@@ -1,5 +1,5 @@
 
-import constants from "./constants.js"
+import constants from "src/constants.js"
 
 // --- Throttle simple pour respecter la politique d'usage de Nominatim (1 req/s) ---
 let lastNominatimCall = 0;

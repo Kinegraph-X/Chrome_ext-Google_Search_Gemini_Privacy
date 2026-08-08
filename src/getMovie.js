@@ -2,8 +2,8 @@
 
 
 
-import constants from "./constants.js"
-import * as utils from "./movieUtils.js"
+import constants from "src/constants.js"
+import * as utils from "src/movieUtils.js"
 
 async function tmdbGet(path, params = {}) {
     const url = new URL(`${constants.TMDB_BASE}${path}`);

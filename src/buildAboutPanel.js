@@ -1,12 +1,12 @@
 
 
 
-import constants from "./constants.js"
-import * as dom from "./inpageBlock.js"
-import * as utils from "./aboutPanelUtils.js"
+import constants from "src/constants.js"
+import * as dom from "src/inpageBlock.js"
+import * as utils from "src/aboutPanelUtils.js"
 
 
-export function render(about, query, theme) {
+export function renderAbout(about, query, theme) {
   dom.titleEl.style.display = "block";
 
   if (!about) {

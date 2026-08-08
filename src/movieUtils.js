@@ -1,5 +1,5 @@
 
-import constants from "./constants.js"
+import constants from "src/constants.js"
 
 let tmdbToken = null;
 // --- Cache mémoire, même logique que about-builder.js ---

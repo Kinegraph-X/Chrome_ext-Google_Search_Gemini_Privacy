@@ -1,7 +1,7 @@
 
 
-import constants from "./constants.js"
-import * as utils from "./aboutUtils.js"
+import constants from "src/constants.js"
+import * as utils from "src/aboutUtils.js"
 
 
 
@@ -148,6 +148,7 @@ export async function buildAboutPanel(query, opts = {}) {
         summary = await fetchWikipediaSummary(wikiTitle, wikiLang);
     } catch (e) {
         console.warn("[about-builder] Wikipedia error", e);
+        throw e;
     }
 
     if (!place && !summary) {
